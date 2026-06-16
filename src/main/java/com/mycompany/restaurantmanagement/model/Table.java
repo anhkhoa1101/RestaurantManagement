@@ -4,22 +4,6 @@
  */
 package com.mycompany.restaurantmanagement.model;
 
-/**
- *
- * @author khoa0
- */
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.mycompany.restaurantmanagement.model;
-
-/**
- *
- * @author khoa0
- */
-package com.mycompany.restaurant.model;
-
 public class Table {
     
     private int tableId;
@@ -65,4 +49,5 @@ public String toString() {
         status = "Occupied";     //Có người ngồi
     }
     return "TableId: " + this.tableId + " [" + this.tableName + "] - Status: " + status;
+}
 }
