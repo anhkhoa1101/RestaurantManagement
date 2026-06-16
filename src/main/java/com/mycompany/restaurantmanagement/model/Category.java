@@ -40,7 +40,7 @@ public class Category {
     }
 
     public void setName(String name){
-        if (name == null || name.isBlank())
+        if (name == null || name.trim().isEmpty())
             throw new IllegalArgumentException("Category name must not be empty.");
         this.name = name;
     }
