@@ -17,7 +17,7 @@ import java.util.List;
 public class Order {
     private String orderId;              
     private Table table;                 
-    private List<OrderDetail> details;   
+    private List<OrderDetail> details;
     private double totalPrice;           
     private boolean isPaid;              
 
