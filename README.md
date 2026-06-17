@@ -1,4 +1,4 @@
-﻿﻿## 🍽️ Restaurant Management System — PRO192
+﻿# 🍽️ Restaurant Management System — PRO192
 
 > Hệ thống quản lý nhà hàng được xây dựng bằng Java (Console), phân chia theo 4 module chức năng độc lập.
 
