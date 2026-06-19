@@ -1,6 +1,6 @@
 package com.mycompany.restaurantmanagement.repository;
  
-import com.restaurant.model.Category;
+import com.mycompany.restaurantmanagement.model.Category;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,11 +24,11 @@ public class CategoryRepository {
     // Phương thức để tìm danh mục theo ID
     public Optional<Category> findById(int id) {
         return categories.stream()
-                .filter(category -> category.getId() == id)
+                .filter(category -> category.getCategoryId() == id)
                 .findFirst();
     }
     // Phương thức để xóa danh mục theo ID
     public boolean deleteById(int id) {
-        return categories.removeIf(category -> category.getId() == id);
+        return categories.removeIf(category -> category.getCategoryId() == id);
     }
 }
