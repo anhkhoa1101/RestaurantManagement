@@ -8,7 +8,8 @@ public abstract class User {
     protected String email;
     protected boolean isActive;
 
-    public User(int userId, String username, String password, String fullName, String email) {
+    public User (){}
+    public User(int userId, String username, String password, String fullName, String email, boolean isActive) {
         this.userId = userId;
         this.username = username;
         this.password = password;
