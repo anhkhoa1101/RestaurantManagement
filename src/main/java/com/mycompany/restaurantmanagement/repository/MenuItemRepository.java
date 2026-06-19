@@ -1,6 +1,7 @@
 package com.mycompany.restaurantmanagement.repository;
 
-import com.restaurant.model.MenuItem;
+import com.mycompany.restaurantmanagement.model.MenuItem;
+import com.mycompany.restaurantmanagement.model.Category;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package com.mycompany.restaurantmanagement.repository;
 
-import com.restaurant.model.InventoryItem;
+import com.mycompany.restaurantmanagement.model.InventoryItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
