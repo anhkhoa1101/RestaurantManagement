@@ -18,6 +18,8 @@ public class MenuItem {
     private Category category;
     private boolean isAvailable;
 
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
     public MenuItem(int itemId, String name, String description, double price, Category category) {
         this.itemId = itemId;
         this.name = name;
@@ -26,6 +28,8 @@ public class MenuItem {
         this.category = category;
         this.isAvailable = true;
     }
+
+    // ─── Getters and Setters ──────────────────────────────────────────────────
 
     public int getItemId() {
         return itemId;
@@ -51,11 +55,15 @@ public class MenuItem {
         return isAvailable;
     }
 
+    // ─── Update giá tiền ───────────────────────────────────────────────
+
     public void setPrice(double price) {
         if (price < 0)
             throw new IllegalArgumentException("Price must not be negative.");
         this.price = price;
     }
+
+    // ─── Update thông tin món ăn ───────────────────────────────────────────────
 
     public void setName(String name) {
         if (name == null || name.trim().isEmpty())
@@ -78,12 +86,17 @@ public class MenuItem {
     public void setItemId(int itemId) {
         this.itemId = itemId;
     }
-    //    public boolean matchesKeyword(String keyword) {
+
+    // ─── Kiểm tra từ khóa tìm kiếm món ăn ───────────────────────────────────────────────
+
+//    public boolean matchesKeyword(String keyword) {
 //        if (keyword == null || keyword.isBlank())
 //            return true;
 //        String kw = keyword.trim().toLowerCase();
 //        return name.toLowerCase().contains(kw) || (description != null && description.toLowerCase().contains(kw));
 //    }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
 
     @Override
     public String toString() {

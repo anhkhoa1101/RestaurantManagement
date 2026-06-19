@@ -17,12 +17,16 @@ public class Category {
     private String description;
     private boolean isActive;
 
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
     public Category(int categoryId,String name, String description){
         this.categoryId = categoryId;
         this.name = name;
         this.description = description;
         this.isActive = true;
     }
+
+    // ─── Getters and Setters ──────────────────────────────────────────────────
 
     public int getCategoryId() {
         return categoryId;
@@ -56,6 +60,9 @@ public class Category {
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
     }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
+    //in ra thông tin của Category
 
     @Override
     public String toString(){

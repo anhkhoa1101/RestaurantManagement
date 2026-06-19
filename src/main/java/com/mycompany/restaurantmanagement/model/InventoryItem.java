@@ -18,6 +18,8 @@ public class InventoryItem {
     private String unit;
     private Date lastUpdated;
 
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
     public InventoryItem(int inventoryId, MenuItem menuItem, int quantity, int minQuantity, String unit){
         this.inventoryId = inventoryId;
         this.menuItem = menuItem;
@@ -25,6 +27,8 @@ public class InventoryItem {
         this.minQuantity = minQuantity;
         this.lastUpdated = new Date();
     }
+
+    // ─── Getters and Setters ──────────────────────────────────────────────────
 
     public int getInventoryId() {
         return inventoryId;
@@ -70,6 +74,8 @@ public class InventoryItem {
         this.unit = unit;
     }
 
+    // ─── Update số lượng tồn kho ───────────────────────────────────────────────
+
     public void setQuantity(int quantity) {
         if (quantity < 0) throw new IllegalArgumentException("Quantity must not be negative.");
         this.quantity = quantity;
@@ -85,15 +91,20 @@ public class InventoryItem {
         this.quantity = quantity;
         this.lastUpdated = new Date();
     }
+
+    // ─── Kiểm tra tình trạng tồn kho ───────────────────────────────────────────────
+
     public boolean isLowStock(){
         return  quantity <= minQuantity && quantity > 0;
     }
     public boolean isOutOfStock(){
         return quantity == 0;
     }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
+
     @Override
     public String toString(){
         return String.format("InventoryItem{id=%d, item='%s', qty=%d %s, min=%d, lastUpdated=%s}", inventoryId, menuItem != null ? menuItem.getName() : "N/A", quantity, unit, minQuantity, lastUpdated);
     }
 }
-
