@@ -1,6 +1,11 @@
 package com.mycompany.restaurantmanagement.model;
 
+/**
+ * [Member 1] Lớp cha trừu tượng cho tất cả người dùng trong hệ thống.
+ * Manager, Employee, Cashier đều kế thừa từ lớp này.
+ */
 public abstract class User {
+
     protected int userId;
     protected String username;
     protected String password;
@@ -8,17 +13,17 @@ public abstract class User {
     protected String email;
     protected boolean isActive;
 
-    public User (){}
     public User(int userId, String username, String password, String fullName, String email, boolean isActive) {
         this.userId = userId;
         this.username = username;
         this.password = password;
         this.fullName = fullName;
         this.email = email;
-        this.isActive = true; // Mặc định là true khi tạo mới
+        this.isActive = isActive;
     }
 
-    // Getters
+    // ===== Getters / Setters =====
+
     public int getUserId() {
         return userId;
     }
@@ -35,35 +40,66 @@ public abstract class User {
         return email;
     }
 
-    public boolean isActive() {
-        return isActive;
+    public String getPassword() {
+        // Lưu ý: chỉ dùng nội bộ để kiểm tra đăng nhập / lưu file,
+        // không expose ra UI dưới dạng hiển thị cho người dùng khác.
+        return password;
     }
 
-    // Setters
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String pwd) {
+        this.password = pwd;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public boolean isActive() {
+        return isActive;
     }
 
     public void setActive(boolean active) {
         this.isActive = active;
     }
 
-    // Methods
-    public boolean login(String inputUsername, String inputPassword) {
-        return this.username.equals(inputUsername)
-                && this.password.equals(inputPassword)
-                && this.isActive;
+    // ===== Business methods =====
+
+    /**
+     * Kiểm tra đăng nhập: so khớp username + password và tài khoản phải đang active.
+     */
+    public boolean login(String username, String password) {
+        if (!this.isActive) {
+            return false;
+        }
+        return this.username.equals(username) && this.password.equals(password);
     }
 
     public void logout() {
-        // Trong hệ thống console, hàm này thường in ra thông báo
-        // Việc xoá session sẽ do UserService xử lý
-        System.out.println("Tài khoản " + this.username + " đang tiến hành đăng xuất...");
+        // Trong console app, logout chỉ cần thông báo + UI quay lại màn hình đăng nhập.
+        System.out.println("[" + getRole() + "] " + fullName + " đã đăng xuất.");
     }
+
+    /**
+     * Mỗi lớp con phải định nghĩa vai trò của mình (dùng cho phân quyền & hiển thị).
+     */
+    public abstract String getRole();
+
+    /**
+     * Mỗi lớp con tự định nghĩa cách chuyển đổi thành 1 dòng để lưu file.
+     * Format chung: dùng dấu '|' để phân tách field, để tránh xung đột với dấu ','
+     * có thể xuất hiện trong họ tên / địa chỉ email, v.v.
+     */
+    public abstract String toFileLine();
 
     @Override
     public String toString() {
-        return String.format("ID: %d | Username: %s | Tên: %s | Email: %s | Trạng thái: %s",
-                userId, username, fullName, email, (isActive ? "Hoạt động" : "Bị khóa"));
+        return String.format(
+                "[%d] %-10s | %-15s | %-20s | %-25s | %s",
+                userId, getRole(), username, fullName, email, isActive ? "ACTIVE" : "LOCKED"
+        );
     }
 }
