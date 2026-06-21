@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 public class UserRepository_File implements UserRepository {
-    private static final String FILE_PATH = "../data/users.txt";
+    private static final String FILE_PATH = "data/users.txt";
     private List<User> users = new ArrayList<>();
 
     public UserRepository_File() {
