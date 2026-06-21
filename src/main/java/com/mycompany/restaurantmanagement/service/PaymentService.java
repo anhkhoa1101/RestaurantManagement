@@ -56,10 +56,14 @@ public List<Payment> getAllPayments() {
     return paymentList;
 }
 
-public void cancelPayment(String paymentId) {
+public boolean cancelPayment(String paymentId) {
     Payment payment = findById(paymentId);
     if (payment != null) {
-        payment.cancelPayment();    
-    } else {System.out.println("Không tìm thấy giao dịch: " + paymentId);}
+        payment.cancelPayment();  
+        return true;   
+    } else {
+        System.out.println("Không tìm thấy giao dịch: " + paymentId);
+        return false;
+    } 
   }
 }
