@@ -3,7 +3,7 @@ package com.mycompany.restaurantmanagement.service;
 
 
 import com.mycompany.restaurantmanagement.model.Table;
-
+import com.mycompany.restaurantmanagement.repository.TableRepository;
 import java.util.ArrayList;
 import java.util.List;
 
