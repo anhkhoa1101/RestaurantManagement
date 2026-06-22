@@ -4,50 +4,49 @@
  */
 package com.mycompany.restaurantmanagement.model;
 
-public class Table {
-    
-    private int tableId;
-    private String tableName;
-    private boolean isOccupied; // true: bàn có khách, false: bàn trống
 
-    // Constructor: Khởi tạo bàn ăn mới
+
+/**
+ * [Member 3] Lớp đại diện cho một bàn ăn trong nhà hàng.
+ * Lưu trạng thái bàn: trống hay đang có khách.
+ */
+public class Table {
+
+    private int tableId;       // Mã bàn (duy nhất)
+    private String tableName;  // Tên bàn (ví dụ: "Bàn 01")
+    private boolean isOccupied; // true = đang có khách, false = trống
+
+    // Constructor
     public Table(int tableId, String tableName) {
         this.tableId = tableId;
         this.tableName = tableName;
-        this.isOccupied = false; // Mới tạo ra thì bàn luôn trống
+        this.isOccupied = false; // Mặc định bàn trống khi mới tạo
     }
 
-    
-    public int getTableId() {
-        return this.tableId;
+    // ── Getter ──────────────────────────────────────────
+    public int getTableId()    { return tableId; }
+    public String getTableName() { return tableName; }
+    public boolean isOccupied()  { return isOccupied; }
+
+    /**
+     * Kiểm tra bàn có trống không (true = còn trống, có thể đặt).
+     */
+    public boolean checkAvailability() {
+        return !isOccupied;
     }
 
-    public String getTableName() {
-        return this.tableName;
-    }
-
-    public boolean isOccupied() {
-        return this.isOccupied;
-    }
-
+    /**
+     * Đặt trạng thái bàn (true = có khách, false = trống).
+     */
     public void setOccupied(boolean occupied) {
         this.isOccupied = occupied;
     }
 
-    // Hàm kiểm tra bàn có sẵn để ngồi hay không 
-    public boolean checkAvailability() {
-        if (this.isOccupied == false) {
-            return true;  // Bàn trống -> Có sẵn
-        } else {
-            return false; // Bàn đã có khách -> Không có sẵn
-        }
+    @Override
+    public String toString() {
+        return String.format("Bàn #%d | %s | %s",
+                tableId,
+                tableName,
+                isOccupied ? "🔴 Có khách" : "🟢 Trống");
     }
-@Override
-public String toString() {
-    String status = "Available"; // Có sẵn bàn
-    if (this.isOccupied) {
-        status = "Occupied";     //Có người ngồi
-    }
-    return "TableId: " + this.tableId + " [" + this.tableName + "] - Status: " + status;
-}
 }

@@ -1,40 +1,55 @@
 package com.mycompany.restaurantmanagement.service;
 
-
-
 import com.mycompany.restaurantmanagement.model.Order;
-import com.mycompany.restaurantmanagement.model.MenuItem;
+import com.mycompany.restaurantmanagement.model.OrderDetail;
 
+/**
+ * [Member 3] Xử lý logic cho từng dòng trong đơn hàng.
+ * Các thao tác: xem chi tiết, tính tổng, in đơn.
+ *
+ * Lưu ý: việc thêm/xóa món được xử lý trong OrderService.
+ * OrderDetailService chỉ lo phần hiển thị và tính toán.
+ */
 public class OrderDetailService {
-    private OrderService orderService; 
 
-    public OrderDetailService(OrderService orderService) {
-        this.orderService = orderService;
+    /**
+     * In chi tiết toàn bộ đơn hàng ra console.
+     */
+    public void printOrderDetails(Order order) {
+        System.out.println(order.toString());
     }
 
-    
-    public void addItemToTable(int tableId, MenuItem item, int quantity) {
-        Order activeOrder = orderService.getActiveOrderByTable(tableId);
-        
-        if (activeOrder == null) {
-            System.out.println("❌ Error: Cannot add items. This table has no active order.");
-            return;
-        }
-        
-        
-        activeOrder.addDetail(item, quantity);
+    /**
+     * Tính và in tổng tiền hiện tại của đơn.
+     */
+    public void printTotal(Order order) {
+        double total = order.calculateTotal();
+        System.out.printf("Tổng tiền đơn %s: %,.0f đ%n", order.getOrderId(), total);
     }
 
-    
-    public void removeItemFromTable(int tableId, MenuItem item) {
-        Order activeOrder = orderService.getActiveOrderByTable(tableId);
-        
-        if (activeOrder == null) {
-            System.out.println("❌ Error: Cannot remove items. This table has no active order.");
-            return;
+    /**
+     * Kiểm tra đơn có rỗng không (chưa có món nào).
+     */
+    public boolean isEmpty(Order order) {
+        return order.getDetails().isEmpty();
+    }
+
+    /**
+     * Đếm số dòng (số loại món) trong đơn.
+     */
+    public int countItems(Order order) {
+        return order.getDetails().size();
+    }
+
+    /**
+     * Tính tổng số lượng tất cả các món trong đơn.
+     * Ví dụ: Phở x2 + Cơm x3 = 5
+     */
+    public int totalQuantity(Order order) {
+        int sum = 0;
+        for (OrderDetail d : order.getDetails()) {
+            sum += d.getQuantity();
         }
-        
-       
-        activeOrder.removeDetail(item);
+        return sum;
     }
 }

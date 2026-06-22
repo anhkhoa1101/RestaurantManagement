@@ -1,49 +1,46 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.restaurantmanagement.model;
 
 /**
+ * [Member 3] Một dòng trong đơn hàng — tương ứng với 1 món ăn + số lượng.
+ * Ví dụ: "Phở bò x2 = 70.000đ"
  *
- * @author khoa0
+ * Require từ Member 2: MenuItem (món ăn từ thực đơn)
  */
-
-
 public class OrderDetail {
-    private MenuItem menuItem; 
-    private int quantity;
-    private double orderPrice;
 
+    private MenuItem menuItem;   // Món ăn (lấy từ thực đơn của Member 2)
+    private int quantity;        // Số lượng gọi
+    private double orderPrice;   // Giá tại thời điểm gọi (snapshot, không đổi dù thực đơn thay giá)
+
+    // Constructor
     public OrderDetail(MenuItem menuItem, int quantity) {
         this.menuItem = menuItem;
         this.quantity = quantity;
-        this.orderPrice = menuItem.getPrice(); 
+        this.orderPrice = menuItem.getPrice(); // Chốt giá ngay khi gọi món
     }
 
-    public MenuItem getMenuItem() {
-        return menuItem;
+    // ── Getter ──────────────────────────────────────────
+    public MenuItem getMenuItem()  { return menuItem; }
+    public int getQuantity()       { return quantity; }
+    public double getOrderPrice()  { return orderPrice; }
+
+    /**
+     * Cập nhật số lượng (dùng khi chỉnh sửa đơn).
+     */
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int q) {
-        this.quantity = q;
-    }
-
-    public double getOrderPrice() {
-        return orderPrice;
-    }
-
+    /**
+     * Tính thành tiền của dòng này: đơn giá × số lượng.
+     */
     public double getSubTotal() {
-        return this.quantity * this.orderPrice;
+        return orderPrice * quantity;
     }
 
     @Override
     public String toString() {
-        return String.format("%-20s x%-5d Price: %,.0f VNĐ | Subtotal: %,.0f VNĐ", 
-                menuItem.getName(), quantity, orderPrice, getSubTotal());
+        return String.format("  %-25s x%d  %,.0f đ",
+                menuItem.getName(), quantity, getSubTotal());
     }
 }
