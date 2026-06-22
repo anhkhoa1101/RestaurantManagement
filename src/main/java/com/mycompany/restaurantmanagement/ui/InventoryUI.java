@@ -8,34 +8,19 @@ package com.mycompany.restaurantmanagement.ui;
  *
  * @author khoa0
  */
-package com.restaurant.ui;
+package com.mycompany.restaurantmanagement.ui;
 
-import com.restaurant.model.Category;
-import com.restaurant.model.InventoryItem;
-import com.restaurant.model.MenuItem;
-import com.restaurant.service.CategoryService;
-import com.restaurant.service.InventoryService;
-import com.restaurant.service.MenuService;
+import com.mycompany.restaurantmanagement.model.Category;
+import com.mycompany.restaurantmanagement.model.InventoryItem;
+import com.mycompany.restaurantmanagement.model.MenuItem;
+import com.mycompany.restaurantmanagement.service.CategoryService;
+import com.mycompany.restaurantmanagement.service.InventoryService;
+import com.mycompany.restaurantmanagement.service.MenuService;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-/**
- * UI – InventoryUI
- *
- * Giao diện console cho Member 2: Quản lý thực đơn và kho hàng.
- * Nhận input từ người dùng và hiển thị kết quả cho các thao tác
- * quản lý món ăn và tồn kho.
- *
- * Phụ thuộc vào:
- *   - CategoryService  (CRUD danh mục)
- *   - MenuService      (CRUD món ăn + tìm kiếm)
- *   - InventoryService (kiểm tra kho + nhập hàng + BR7)
- *
- * Lớp này KHÔNG chứa logic nghiệp vụ — chỉ đọc input,
- * gọi service tương ứng, và in kết quả ra màn hình.
- */
 public class InventoryUI {
 
     private final Scanner          scanner;
