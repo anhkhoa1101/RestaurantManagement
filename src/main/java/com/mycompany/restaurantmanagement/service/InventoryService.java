@@ -14,50 +14,55 @@ public class InventoryService {
     public InventoryService(InventoryRepository repository) {
         this.repository = repository;
     }
+
     // Tạo mới một mặt hàng tồn kho
-    public InventoryItem addInventoryItem(MenuItem menuItem, int quantity, int minimumQuantity, String unit) {
-        InventoryItem inventoryItem = new InventoryItem(repository.nextId(), menuItem, quantity, minimumQuantity, unit);
-        repository.save(inventoryItem);
-        return inventoryItem;
+    public InventoryItem addInventoryItem(MenuItem menuItem, int quantity, int minQuantity, String unit) {
+        InventoryItem item = new InventoryItem(repository.nextId(), menuItem, quantity, minQuantity, unit);
+        repository.save(item);
+        return item;
     }
-    // Cập nhật thông tin mặt hàng tồn kho
-    public boolean restock(int inventoryId, int quantity) {
-        Optional<InventoryItem> foundItem = repository.findById(inventoryId);
-        if (!foundItem.isPresent()) return false;
-        foundItem.get().addStock(quantity);
+
+    // Nhập thêm hàng vào kho
+    public boolean restock(int inventoryId, int amount) {
+        Optional<InventoryItem> found = repository.findById(inventoryId);
+        if (!found.isPresent())
+            return false;
+        found.get().addStock(amount);
         repository.update();
         return true;
     }
-    // Giảm số lượng tồn kho khi bán món ăn
-    public boolean reduceStock(int menuItemId, int quantity) {
-        Optional<InventoryItem> foundItem = repository.findByMenuItemId(menuItemId);
-        if (!foundItem.isPresent())
-        return false;
-        foundItem.get().reduceStock(quantity);
+
+    // Giảm tồn kho khi bán món (dùng bởi Module 3 — Order)
+    public boolean reduceStock(int menuItemId, int amount) {
+        Optional<InventoryItem> found = repository.findByMenuItemId(menuItemId);
+        if (!found.isPresent())
+            return false;
+        found.get().reduceStock(amount);
         repository.update();
         return true;
     }
-    // Kiểm tra tình trạng tồn kho của một món ăn
-    public boolean checkStock(int menuItemId) {
-        Optional<InventoryItem> foundItem = repository.findByMenuItemId(menuItemId);
-        if (!foundItem.isPresent())
-        return false;
-        return !foundItem.get().isOutOfStock();
+
+    // Kiểm tra món còn hàng không (dùng bởi Module 3 trước khi gọi món)
+    public boolean isInStock(int menuItemId) {
+        Optional<InventoryItem> found = repository.findByMenuItemId(menuItemId);
+        return found.isPresent() && !found.get().isOutOfStock();
     }
+
     // Lấy tất cả mặt hàng tồn kho
     public List<InventoryItem> getAllInventoryItems() {
         return repository.findAll();
     }
-    // Lấy danh sách mặt hàng tồn kho đang ở mức thấp
+
+    // Lấy danh sách mặt hàng đang ở mức tồn kho thấp
     public List<InventoryItem> getLowStockItems() {
-        List<InventoryItem> result = new ArrayList<>();
+        List<InventoryItem> result = new ArrayList<InventoryItem>();
         for (InventoryItem item : repository.findAll()) {
-            if (item.isLowStock()) {
+            if (item.isLowStock())
                 result.add(item);
-            }
         }
         return result;
     }
+
     // Lấy thông tin một mặt hàng tồn kho theo ID
     public Optional<InventoryItem> getById(int id) {
         return repository.findById(id);

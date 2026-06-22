@@ -1,13 +1,13 @@
-1|Gan Ngỗng Pate Truffle Đen|Gan ngỗng béo ngậy ướp truffle đen Périgord phục vụ với bánh mì nướng bơ|450000.0|1|true
-2|Súp Tôm Hùm Bisque|Súp kem tôm hùm Pháp thơm nồng với cognac và kem tươi|380000.0|1|true
-3|Gỏi Bào Ngư Nhật|Bào ngư tươi sống thái lát mỏng trộn dầu mè và wasabi Nhật Bản|520000.0|1|true
-4|Bò Wagyu A5 Nướng Than Hoa|Thịt bò Wagyu hạng A5 Nhật Bản nướng vừa chín tới với sốt hành tây caramel|1250000.0|2|true
-5|Tôm Hùm Alaska Hấp Bơ Tỏi|Tôm hùm Alaska nguyên con hấp chín với bơ tỏi thảo mộc và chanh vàng|980000.0|2|true
-6|Cá Hồi Na Uy Áp Chảo|Phi lê cá hồi Na Uy áp chảo vàng giòn sốt chanh dây và rau củ mùa|650000.0|2|true
-7|Vịt Quay Kiểu Pháp|Vịt quay da giòn phong cách Pháp với sốt cam và khoai tây nghiền vi|720000.0|2|true
-8|Soufflé Sô Cô La Đen|Soufflé sô cô la đen 70% nóng hổi phục vụ ngay khi ra lò với kem vanilla|320000.0|3|true
-9|Crème Brûlée Vani Tahiti|Kem caramel cháy mặt thơm vani Tahiti nguyên chất|280000.0|3|true
-10|Bánh Macaron Đặc Chế|Hộp 6 chiếc macaron vị theo mùa từ bếp trưởng|350000.0|3|true
-11|Rượu Vang Đỏ Bordeaux|Vang đỏ Chateau Margaux thượng hạng phục vụ theo ly|680000.0|4|true
-12|Cocktail Signature Bingchiling|Cocktail đặc chế độc quyền của nhà hàng với gin, vải thiều và hoa hồng|220000.0|4|true
-13|Trà Oolong Đài Loan Cao Cấp|Trà oolong hảo hạng pha theo nghi thức trà đạo phương Đông|150000.0|4|true
+1|Gan Ngong Pate Truffle Den|Gan ngong beo ngay uop truffle den Perigord phuc vu voi banh mi nuong bo|450000.0|1|true
+2|Sup Tom Hum Bisque|Sup kem tom hum Phap thom nong voi cognac va kem tuoi|380000.0|1|true
+3|Goi Bao Ngu Nhat|Bao ngu tuoi song thai lat mong tron dau me va wasabi Nhat Ban|520000.0|1|true
+4|Bo Wagyu A5 Nuong Than Hoa|Thit bo Wagyu hang A5 Nhat Ban nuong vua chin toi voi sot hanh tay caramel|1250000.0|2|true
+5|Tom Hum Alaska Hap Bo Toi|Tom hum Alaska nguyen con hap chin voi bo toi thao moc va chanh vang|980000.0|2|true
+6|Ca Hoi Na Uy Ap Chao|Phi le ca hoi Na Uy ap chao vang gion sot chanh day va rau cu mua|650000.0|2|true
+7|Vit Quay Kieu Phap|Vit quay da gion phong cach Phap voi sot cam va khoai tay nghien vi|720000.0|2|true
+8|Souffle So Co La Den|Souffle so co la den 70% nong hoi phuc vu ngay khi ra lo voi kem vanilla|320000.0|3|true
+9|Creme Brulee Vani Tahiti|Kem caramel chay mat thom vani Tahiti nguyen chat|280000.0|3|true
+10|Banh Macaron Dac Che|Hop 6 chiec macaron vi theo mua tu bep truong|350000.0|3|true
+11|Ruou Vang Do Bordeaux|Vang do Chateau Margaux thuong hang phuc vu theo ly|680000.0|4|true
+12|Cocktail Signature Bingchiling|Cocktail dac che doc quyen cua nha hang voi gin, vai thieu va hoa hong|220000.0|4|true
+13|Tra Oolong Dai Loan Cao Cap|Tra oolong hao hang pha theo nghi thuc tra dao phuong Dong|150000.0|4|true

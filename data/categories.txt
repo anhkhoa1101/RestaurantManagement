@@ -1,4 +1,4 @@
-1|Khai Vị|Các món khai vị tinh tế mở đầu bữa ăn|true
-2|Món Chính|Các món chính đặc sắc của nhà hàng|true
-3|Tráng Miệng|Các món tráng miệng cao cấp kết thúc bữa ăn|true
-4|Đồ Uống|Thức uống thượng hạng và cocktail đặc chế|true
+1|Khai Vi|Cac mon khai vi tinh te mo dau bua an|true
+2|Mon Chinh|Cac mon chinh dac sac cua nha hang|true
+3|Trang Miet|Cac mon trang miet cao cap ket thuc bua an|true
+4|Do Uong|Thuc uong thuong hang va cocktail dac che|true
