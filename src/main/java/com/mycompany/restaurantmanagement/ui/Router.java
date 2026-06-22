@@ -46,7 +46,7 @@ public class Router {
                 break;
 
             case EMPLOYEE:
-                new OrderUI(orderService, orderDetailService, menuService).show();
+                new OrderUI(orderService, orderDetailService, menuService).start();
                 break;
 
             case CASHIER:
