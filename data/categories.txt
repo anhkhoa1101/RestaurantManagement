@@ -1,0 +1,4 @@
+1|Khai Vị|Các món khai vị tinh tế mở đầu bữa ăn|true
+2|Món Chính|Các món chính đặc sắc của nhà hàng|true
+3|Tráng Miệng|Các món tráng miệng cao cấp kết thúc bữa ăn|true
+4|Đồ Uống|Thức uống thượng hạng và cocktail đặc chế|true

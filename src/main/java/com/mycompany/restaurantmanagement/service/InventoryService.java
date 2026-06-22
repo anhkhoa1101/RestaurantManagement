@@ -23,9 +23,8 @@ public class InventoryService {
     // Cập nhật thông tin mặt hàng tồn kho
     public boolean restock(int inventoryId, int quantity) {
         Optional<InventoryItem> foundItem = repository.findById(inventoryId);
-        if (!foundItem.isPresent())
-        return false;
-        foundItem.get().addQuantity(quantity);
+        if (!foundItem.isPresent()) return false;
+        foundItem.get().addStock(quantity);
         repository.update();
         return true;
     }

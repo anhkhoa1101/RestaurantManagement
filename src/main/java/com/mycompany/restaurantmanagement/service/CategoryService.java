@@ -19,12 +19,12 @@ public class CategoryService {
         return category;
     }
     // Cập nhật thông tin danh mục
-    public boolean updateCategory(int id, String name, String newName, String Description) {
+    public boolean updateCategory(int id, String newName, String newDescription) {
         Optional<Category> foundCategory = repository.findById(id);
         if (foundCategory.isPresent())
         return false;
         foundCategory.get().setName(newName);
-        foundCategory.get().setDescription(Description);
+        foundCategory.get().setDescription(newDescription);
         return true;
         }
     // Xóa một danh mục

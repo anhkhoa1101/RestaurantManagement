@@ -27,6 +27,14 @@ public class CategoryRepository {
         categories.add(category);
         saveToFile();
     }
+    // Trả về tất cả danh mục dưới dạng một List mới (để tránh bị sửa đổi từ bên ngoài)
+    public List<Category> findAll() {
+        return new ArrayList<>(categories);
+    }
+    // Tìm kiếm theo ID, trả về Optional để xử lý trường hợp không tìm thấy
+    public Optional<Category> findById(int id) {
+        return categories.stream().filter(c -> c.getId() == id).findFirst();
+    }
     // Xoá khỏi danh sách và cập nhật file
     public boolean deleteById(int id) {
         boolean removed = categories.removeIf(c -> c.getId() == id);

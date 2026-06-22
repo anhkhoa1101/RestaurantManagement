@@ -3,13 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.restaurantmanagement.ui;
-
 /**
  *
  * @author khoa0
  */
-package com.mycompany.restaurantmanagement.ui;
-
 import com.mycompany.restaurantmanagement.model.Category;
 import com.mycompany.restaurantmanagement.model.InventoryItem;
 import com.mycompany.restaurantmanagement.model.MenuItem;

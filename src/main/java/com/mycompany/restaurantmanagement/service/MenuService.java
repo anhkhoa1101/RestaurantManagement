@@ -21,11 +21,15 @@ public class MenuService {
         return menuItem;
     }
 
+    // tạo mới một món ăn
+    public MenuItem addItem(String name, String description, double price, Category category) {
+        return addMenuItem(name, description, price, category);
+    }
+
     // Cập nhật thông tin món ăn
     public boolean updateMenuItem(int id, String name, double price) {
         Optional<MenuItem> foundMenuItem = repository.findById(id);
-        if(!foundMenuItem.isPresent())
-        return false;
+        if (!foundMenuItem.isPresent()) return false;
         MenuItem menuItem = foundMenuItem.get();
         menuItem.setName(name);
         menuItem.setPrice(price);
@@ -33,18 +37,41 @@ public class MenuService {
         return true;
     }
 
+    // Cập nhật thông tin món ăn
+    public boolean updateItem(int id, String name, double price) {
+        return updateMenuItem(id, name, price);
+    }
+
     // Xóa một món ăn
     public boolean deleteMenuItem(int id) {
         return repository.deleteById(id);
     }
+
+    // Xóa một món ăn
+    public boolean deleteItem(int id) {
+        return deleteMenuItem(id);
+    }
+
     // Lấy tất cả món ăn
     public List<MenuItem> getAllMenuItems() {
         return repository.findAll();
     }
-    // Lấy thông tin một món ăn theo từ khóa
+
+    // Lấy tất cả món ăn
+    public List<MenuItem> getAllItems() {
+        return getAllMenuItems();
+    }
+
+    // Tìm kiếm món ăn theo từ khóa
     public List<MenuItem> searchMenuItemsByName(String keyword) {
         return repository.findByName(keyword);
     }
+
+    // Tìm kiếm món ăn theo từ khóa
+    public List<MenuItem> searchItems(String keyword) {
+        return searchMenuItemsByName(keyword);
+    }
+
     // Lấy thông tin một món ăn theo ID
     public Optional<MenuItem> getMenuItemById(int id) {
         return repository.findById(id);

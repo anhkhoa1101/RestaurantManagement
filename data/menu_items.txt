@@ -1,0 +1,13 @@
+1|Gan Ngỗng Pate Truffle Đen|Gan ngỗng béo ngậy ướp truffle đen Périgord phục vụ với bánh mì nướng bơ|450000.0|1|true
+2|Súp Tôm Hùm Bisque|Súp kem tôm hùm Pháp thơm nồng với cognac và kem tươi|380000.0|1|true
+3|Gỏi Bào Ngư Nhật|Bào ngư tươi sống thái lát mỏng trộn dầu mè và wasabi Nhật Bản|520000.0|1|true
+4|Bò Wagyu A5 Nướng Than Hoa|Thịt bò Wagyu hạng A5 Nhật Bản nướng vừa chín tới với sốt hành tây caramel|1250000.0|2|true
+5|Tôm Hùm Alaska Hấp Bơ Tỏi|Tôm hùm Alaska nguyên con hấp chín với bơ tỏi thảo mộc và chanh vàng|980000.0|2|true
+6|Cá Hồi Na Uy Áp Chảo|Phi lê cá hồi Na Uy áp chảo vàng giòn sốt chanh dây và rau củ mùa|650000.0|2|true
+7|Vịt Quay Kiểu Pháp|Vịt quay da giòn phong cách Pháp với sốt cam và khoai tây nghiền vi|720000.0|2|true
+8|Soufflé Sô Cô La Đen|Soufflé sô cô la đen 70% nóng hổi phục vụ ngay khi ra lò với kem vanilla|320000.0|3|true
+9|Crème Brûlée Vani Tahiti|Kem caramel cháy mặt thơm vani Tahiti nguyên chất|280000.0|3|true
+10|Bánh Macaron Đặc Chế|Hộp 6 chiếc macaron vị theo mùa từ bếp trưởng|350000.0|3|true
+11|Rượu Vang Đỏ Bordeaux|Vang đỏ Chateau Margaux thượng hạng phục vụ theo ly|680000.0|4|true
+12|Cocktail Signature Bingchiling|Cocktail đặc chế độc quyền của nhà hàng với gin, vải thiều và hoa hồng|220000.0|4|true
+13|Trà Oolong Đài Loan Cao Cấp|Trà oolong hảo hạng pha theo nghi thức trà đạo phương Đông|150000.0|4|true

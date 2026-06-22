@@ -43,6 +43,10 @@ public class MenuItemRepository {
         return result;
     }
  
+    // lấy tên món ăn làm keyword tìm kiếm
+    public List<MenuItem> findByName(String keyword) {
+        return findByKeyword(keyword);
+    }
     // Xóa khỏi danh sách và ghi lại file.
     public boolean deleteById(int id) {
         boolean removed = items.removeIf(i -> i.getItemId() == id);
