@@ -86,8 +86,25 @@ public void addPayment() {
 public void processPayment() {
     System.out.print("Nhập mã giao dịch cần xử lý: ");
     String paymentId = scanner.nextLine(); //scanner đọc dữ liệu từ người dùng và lưu vào biến paymentId
+    
+    // cho phép người dùng chọn phương thức thanh toán
+    System.out.println("Chọn phương thức thanh toán:");
+    System.out.println("1. Tiền mặt");
+    System.out.println("2. Quét QR");
+    System.out.print("Lựa chọn: ");
+    int methodChoice = scanner.nextInt();
+    scanner.nextLine(); // Đọc bỏ dòng mới sau khi đọc số nguyên
 
-    boolean success = paymentService.processPayment(paymentId); //gọi hàm processPayment trong PaymentService để xử lý giao dịch và paymentService sẽ trả về true nếu giao dịch được xử lý thành công, ngược lại trả về false
+    //Tính đá hình 
+    PaymentService.PaymentMethod method;
+    if (methodChoice == 1) {    
+        method = paymentService.new CashPayment();
+    } else {
+        method = paymentService.new QRPayment();
+    }
+
+
+    boolean success = paymentService.processPayment(paymentId, method); //gọi hàm processPayment trong PaymentService để xử lý giao dịch và paymentService sẽ trả về true nếu giao dịch được xử lý thành công, ngược lại trả về false
     if (success) {
         System.out.println("Xử lý giao dịch thành công!");
     } else {
@@ -115,11 +132,10 @@ public void displayAllPayments() {
     
     for (Payment payment : list) { //sử dụng vòng lặp for-each để duyệt qua từng phần tử trong danh sách list và in thông tin của từng giao dịch ra
         System.out.println("Mã giao dịch: " + payment.getPaymentId());
-        System.out.println("Số tiền: " + payment.getAmount());
+        System.out.println("Số tiền     : " + payment.getAmount());
         System.out.println("Phương thức thanh toán: " + payment.getMethod());
-        System.out.println("Ngày: " + payment.getDate());
+        System.out.println("Ngày        : " + payment.getDate());
         System.out.println("-------------------------");
     }
   }
-
 }

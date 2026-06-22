@@ -11,14 +11,58 @@ package com.mycompany.restaurantmanagement.service;
 import com.mycompany.restaurantmanagement.model.Payment;
 import java.util.ArrayList;
 import java.util.List;
-
+   
+// INTERFACE ĐA HÌNH CHO CÁC PHƯƠNG THỨC THANH TOÁN
 public class PaymentService {
+    public interface PaymentMethod {
+        boolean pay(double amount);
+        String getMethodName();
+    }
+
+    //TIỀN MẶT
+    public class CashPayment implements PaymentMethod {
+        @Override
+        public boolean pay(double amount) {
+            System.out.println("Thanh toán bằng tiền mặt: " + amount + " VND");
+            return true;
+        }
+        @Override
+        public String getMethodName() {
+            return "Tiền mặt";
+        }
+    }
+    
+    //QUÉT QR
+    public class QRPayment implements PaymentMethod {
+        @Override
+        public boolean pay(double amount) {
+            System.out.println("Thanh toán bằng quét QR: " + amount + " VND");
+            return true;
+        }
+        @Override
+        public String getMethodName() {
+            return "Quét QR";
+        }
+    }
+
     private List<Payment> paymentList;
 
 public PaymentService() {
     this.paymentList = new ArrayList<>();
 }
+//Xử lý thanh toán với phương thức truyền vào
 
+public boolean processPayment(String paymentId, PaymentMethod method) {
+    Payment payment = findById(paymentId);
+    if (payment != null) {
+        System.out.println("Phương thức thanh toán: " + method.getMethodName());
+        return method.pay(payment.getAmount());
+    }
+    System.out.println("Không tìm thấy giao dịch: " + paymentId);
+    return false;
+}
+
+// THÊM GIAO DỊCH
 public void addPayment(Payment payment) {
     if (payment == null) {
         System.out.println("Giao dịch không hợp lệ!");
@@ -27,19 +71,8 @@ public void addPayment(Payment payment) {
     paymentList.add(payment);
     System.out.println("Đã thêm giao dịch: " + payment.getPaymentId());
 }
-public boolean processPayment(String paymentId) {
-    if (paymentId == null) {
-        System.out.println("Mã giao dịch không hợp lệ!");
-        return false;
-    }
-    Payment payment = findById(paymentId);
-    if (payment != null) {
-        return payment.processPayment();
-    } else {
-        System.out.println("Không tìm thấy giao dịch: " + paymentId);
-        return false;
-    }
-}
+
+// TÌM GIAO DỊCH THEO ID
 public Payment findById(String id) {
     if (id == null) {
         System.out.println("ID không hợp lệ!");
@@ -52,10 +85,12 @@ public Payment findById(String id) {
     }
     return null;
 }
+
+// LẤY DANH SÁCH GIAO DỊCH
 public List<Payment> getAllPayments() {
     return paymentList;
 }
-
+// HỦY GIAO DỊCH
 public boolean cancelPayment(String paymentId) {
     Payment payment = findById(paymentId);
     if (payment != null) {
