@@ -1,3 +1,4 @@
+
 package com.mycompany.restaurantmanagement.repository;
 
 import com.mycompany.restaurantmanagement.model.Order;
@@ -5,77 +6,78 @@ import com.mycompany.restaurantmanagement.model.Order;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * [Member 3] Kho lưu trữ đơn hàng — đọc/ghi từ file orders.txt
- *
- * Lưu ý: File chỉ lưu thông tin đơn giản (orderId, tableId, isPaid, tổng tiền).
- * Phần OrderDetail (danh sách món) được quản lý trong bộ nhớ vì phức tạp hơn.
- *
- * Định dạng mỗi dòng:
- *   orderId,tableId,isPaid,totalPrice
- * Ví dụ:
- *   ORD001,1,false,150000
+ * Repository quản lý Order
+ * Lưu dữ liệu xuống: data/orders.txt
  */
 public class OrderRepository {
 
     private static final String FILE_PATH = "data/orders.txt";
 
-    // Danh sách đơn hàng trong bộ nhớ (runtime)
-    private List<Order> orders = new ArrayList<>();
+    private List<Order> orders;
+    private int nextId;
 
-    // Tự load khi khởi tạo
     public OrderRepository() {
-        // Chú ý: không load từ file ở đây vì Order cần Table object đã dựng sẵn.
-        // Việc load sẽ do OrderService xử lý khi cần thiết.
+        orders = new ArrayList<Order>();
+        nextId = 1;
+        loadFromFile();
     }
 
-    // ── CRUD trong bộ nhớ ───────────────────────────────
-
-    /** Lấy tất cả đơn hàng đang có trong bộ nhớ */
-    public List<Order> findAll() {
-        return orders;
+    public String nextId() {
+        return String.format("ORD%03d", nextId++);
     }
 
-    /** Tìm đơn hàng theo mã */
-    public Order findById(String orderId) {
-        for (Order o : orders) {
-            if (o.getOrderId().equals(orderId)) return o;
-        }
-        return null;
-    }
-
-    /** Thêm đơn hàng mới */
-    public void add(Order order) {
+    public void save(Order order) {
         orders.add(order);
-        saveToFile(); // Đồng bộ ra file sau khi thêm
-    }
-
-    /** Xóa đơn hàng khỏi danh sách */
-    public void remove(String orderId) {
-        orders.removeIf(o -> o.getOrderId().equals(orderId));
         saveToFile();
     }
 
-    /** Lưu lại (ví dụ sau khi cập nhật isPaid) */
+    public List<Order> findAll() {
+        return new ArrayList<Order>(orders);
+    }
+
+    public Optional<Order> findById(String orderId) {
+        for (Order o : orders)
+            if (o.getOrderId().equals(orderId))
+                return Optional.of(o);
+
+        return Optional.empty();
+    }
+
+    public List<Order> findByTable(int tableId) {
+        List<Order> result = new ArrayList<Order>();
+
+        for (Order o : orders)
+            if (o.getTable().getTableId() == tableId)
+                result.add(o);
+
+        return result;
+    }
+
+    public List<Order> findUnpaidOrders() {
+        List<Order> result = new ArrayList<Order>();
+
+        for (Order o : orders)
+            if (!o.isPaid())
+                result.add(o);
+
+        return result;
+    }
+
     public void update() {
         saveToFile();
     }
 
-    // ── Ghi ra file ─────────────────────────────────────
-    public void saveToFile() {
-        new File("data").mkdirs();
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            for (Order o : orders) {
-                // orderId,tableId,isPaid,totalPrice
-                bw.write(o.getOrderId()
-                        + "," + o.getTable().getTableId()
-                        + "," + o.isPaid()
-                        + "," + o.getTotalPrice());
-                bw.newLine();
+    public boolean deleteById(String orderId) {
+        for (int i = 0; i < orders.size(); i++)
+            if (orders.get(i).getOrderId().equals(orderId)) {
+                orders.remove(i);
+                saveToFile();
+                return true;
             }
-        } catch (IOException e) {
-            System.out.println("[OrderRepository] Lỗi ghi file: " + e.getMessage());
-        }
+
+        return false;
     }
 }

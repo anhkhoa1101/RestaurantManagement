@@ -1,52 +1,45 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.restaurantmanagement.model;
 
-
-
 /**
- * [Member 3] Lớp đại diện cho một bàn ăn trong nhà hàng.
- * Lưu trạng thái bàn: trống hay đang có khách.
+ * [Member 3] Model - Bàn ăn trong nhà hàng.
+ * Một bàn chỉ có 2 trạng thái: Trống (false) hoặc Đang có khách (true).
  */
 public class Table {
 
-    private int tableId;       // Mã bàn (duy nhất)
-    private String tableName;  // Tên bàn (ví dụ: "Bàn 01")
-    private boolean isOccupied; // true = đang có khách, false = trống
+    private int tableId;
+    private String tableName;
+    private boolean isOccupied;
 
-    // Constructor
     public Table(int tableId, String tableName) {
         this.tableId = tableId;
         this.tableName = tableName;
-        this.isOccupied = false; // Mặc định bàn trống khi mới tạo
+        this.isOccupied = false; // bàn mới tạo luôn ở trạng thái Trống
     }
 
-    // ── Getter ──────────────────────────────────────────
-    public int getTableId()    { return tableId; }
-    public String getTableName() { return tableName; }
-    public boolean isOccupied()  { return isOccupied; }
+    public int getTableId() {
+        return tableId;
+    }
 
-    /**
-     * Kiểm tra bàn có trống không (true = còn trống, có thể đặt).
-     */
+    public String getTableName() {
+        return tableName;
+    }
+
+    public boolean isOccupied() {
+        return isOccupied;
+    }
+
+    // Bàn còn dùng được (để tạo đơn mới) khi nó KHÔNG đang có khách
     public boolean checkAvailability() {
         return !isOccupied;
     }
 
-    /**
-     * Đặt trạng thái bàn (true = có khách, false = trống).
-     */
     public void setOccupied(boolean occupied) {
         this.isOccupied = occupied;
     }
 
     @Override
     public String toString() {
-        return String.format("Bàn #%d | %s | %s",
-                tableId,
-                tableName,
-                isOccupied ? "🔴 Có khách" : "🟢 Trống");
+        return "Bàn #" + tableId + " - " + tableName + " - "
+                + (isOccupied ? "Đang có khách" : "Trống");
     }
 }

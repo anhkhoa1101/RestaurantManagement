@@ -1,46 +1,47 @@
 package com.mycompany.restaurantmanagement.model;
 
 /**
- * [Member 3] Một dòng trong đơn hàng — tương ứng với 1 món ăn + số lượng.
- * Ví dụ: "Phở bò x2 = 70.000đ"
+ * [Member 3] Model - Một dòng chi tiết trong đơn hàng (1 món + số lượng).
  *
- * Require từ Member 2: MenuItem (món ăn từ thực đơn)
+ * Lưu ý: orderPrice được "chốt" lại tại thời điểm gọi món, lấy từ
+ * menuItem.getPrice() lúc đó. Việc này tránh trường hợp Member 2 đổi giá món
+ * (MenuItem.setPrice) SAU khi khách đã gọi món, làm sai lệch số tiền đơn cũ.
  */
 public class OrderDetail {
 
-    private MenuItem menuItem;   // Món ăn (lấy từ thực đơn của Member 2)
-    private int quantity;        // Số lượng gọi
-    private double orderPrice;   // Giá tại thời điểm gọi (snapshot, không đổi dù thực đơn thay giá)
+    private MenuItem menuItem;
+    private int quantity;
+    private double orderPrice;
 
-    // Constructor
     public OrderDetail(MenuItem menuItem, int quantity) {
         this.menuItem = menuItem;
         this.quantity = quantity;
-        this.orderPrice = menuItem.getPrice(); // Chốt giá ngay khi gọi món
+        this.orderPrice = menuItem.getPrice(); // chốt giá ngay lúc gọi món
     }
 
-    // ── Getter ──────────────────────────────────────────
-    public MenuItem getMenuItem()  { return menuItem; }
-    public int getQuantity()       { return quantity; }
-    public double getOrderPrice()  { return orderPrice; }
+    public MenuItem getMenuItem() {
+        return menuItem;
+    }
 
-    /**
-     * Cập nhật số lượng (dùng khi chỉnh sửa đơn).
-     */
+    public int getQuantity() {
+        return quantity;
+    }
+
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    /**
-     * Tính thành tiền của dòng này: đơn giá × số lượng.
-     */
+    public double getOrderPrice() {
+        return orderPrice;
+    }
+
+    // Tiền của riêng dòng món này = đơn giá (đã chốt) * số lượng
     public double getSubTotal() {
         return orderPrice * quantity;
     }
 
     @Override
     public String toString() {
-        return String.format("  %-25s x%d  %,.0f đ",
-                menuItem.getName(), quantity, getSubTotal());
+        return "  - " + menuItem.getName() + " x" + quantity + " = " + getSubTotal() + " đ";
     }
 }

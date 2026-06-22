@@ -1,83 +1,131 @@
+
 package com.mycompany.restaurantmanagement.service;
 
 import com.mycompany.restaurantmanagement.model.Table;
 import com.mycompany.restaurantmanagement.repository.TableRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * [Member 3] Xử lý logic nghiệp vụ liên quan đến Bàn ăn.
- * Bao gồm: xem danh sách bàn, đặt bàn, trả bàn.
- */
 public class TableService {
 
-    // Kho dữ liệu bàn (đọc/ghi file)
-    private TableRepository tableRepo;
+    private TableRepository repository;
 
-    public TableService(TableRepository tableRepo) {
-        this.tableRepo = tableRepo;
+    public TableService(TableRepository repository) {
+        this.repository = repository;
     }
 
-    /**
-     * Lấy toàn bộ danh sách bàn (để hiển thị sơ đồ bàn).
-     */
-    public List<Table> getAllTables() {
-        return tableRepo.findAll();
+    // Tạo bàn mới
+    public Table addTable(String tableName) {
+
+        Table table = new Table(repository.nextId(), tableName);
+
+        repository.save(table);
+
+        return table;
     }
 
-    /**
-     * Tìm bàn theo ID.
-     * @return Table hoặc null nếu không tồn tại
-     */
-    public Table getTableById(int id) {
-        return tableRepo.findById(id);
-    }
+    // Đổi tên bàn
+    public boolean updateTableName(int tableId, String newName) {
 
-    /**
-     * Đặt bàn: chỉ được đặt khi bàn đang trống.
-     * @return true nếu đặt thành công, false nếu bàn đã có khách
-     */
-    public boolean occupyTable(int tableId) {
-        Table t = tableRepo.findById(tableId);
-        if (t == null) {
-            System.out.println("Không tìm thấy bàn #" + tableId);
+        Optional<Table> found = repository.findById(tableId);
+
+        if (!found.isPresent())
             return false;
-        }
-        if (t.isOccupied()) {
-            System.out.println("Bàn " + t.getTableName() + " đang có khách!");
-            return false;
-        }
-        // Đặt trạng thái có khách và lưu file
-        t.setOccupied(true);
-        tableRepo.update();
-        System.out.println("✅ Đã đặt " + t.getTableName());
+
+        Table table = found.get();
+
+        table = new Table(table.getTableId(), newName);
+
+        repository.update();
+
         return true;
     }
 
-    /**
-     * Trả bàn: sau khi thanh toán xong, đặt bàn về trống.
-     */
-    public void freeTable(int tableId) {
-        Table t = tableRepo.findById(tableId);
-        if (t != null) {
-            t.setOccupied(false);
-            tableRepo.update();
-            System.out.println("✅ " + t.getTableName() + " đã được trả về trống.");
-        }
+    // Xóa bàn
+    public boolean deleteTable(int tableId) {
+
+        return repository.deleteById(tableId);
     }
 
-    /**
-     * In sơ đồ tất cả bàn ra console.
-     */
-    public void printTableMap() {
-        System.out.println("\n====== SƠ ĐỒ BÀN ======");
-        List<Table> all = tableRepo.findAll();
-        if (all.isEmpty()) {
-            System.out.println("  (Chưa có bàn nào)");
+    // Lấy toàn bộ bàn
+    public List<Table> getAllTables() {
+
+        return repository.findAll();
+    }
+
+    // Lấy bàn đang trống
+    public List<Table> getAvailableTables() {
+
+        List<Table> result = new ArrayList<Table>();
+
+        for (Table t : repository.findAll()) {
+
+            if (t.checkAvailability())
+                result.add(t);
         }
-        for (Table t : all) {
-            System.out.println("  " + t);
+
+        return result;
+    }
+
+    // Lấy bàn đang có khách
+    public List<Table> getOccupiedTables() {
+
+        List<Table> result = new ArrayList<Table>();
+
+        for (Table t : repository.findAll()) {
+
+            if (t.isOccupied())
+                result.add(t);
         }
-        System.out.println("========================");
+
+        return result;
+    }
+
+    // Tìm bàn theo ID
+    public Optional<Table> getTableById(int tableId) {
+
+        return repository.findById(tableId);
+    }
+
+    // Đánh dấu bàn có khách
+    public boolean occupyTable(int tableId) {
+
+        Optional<Table> found = repository.findById(tableId);
+
+        if (!found.isPresent())
+            return false;
+
+        Table table = found.get();
+
+        if (table.isOccupied())
+            return false;
+
+        table.setOccupied(true);
+
+        repository.update();
+
+        return true;
+    }
+
+    // Giải phóng bàn
+    public boolean releaseTable(int tableId) {
+
+        Optional<Table> found = repository.findById(tableId);
+
+        if (!found.isPresent())
+            return false;
+
+        Table table = found.get();
+
+        if (!table.isOccupied())
+            return false;
+
+        table.setOccupied(false);
+
+        repository.update();
+
+        return true;
     }
 }

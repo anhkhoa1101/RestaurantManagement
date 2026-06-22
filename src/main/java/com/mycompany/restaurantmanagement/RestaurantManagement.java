@@ -1,56 +1,73 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Project/Maven2/JavaApp/src/main/java/${packagePath}/${mainClassName}.java to edit this template
- */
 
 package com.mycompany.restaurantmanagement;
 
-import com.mycompany.restaurantmanagement.repository.*;
-import com.mycompany.restaurantmanagement.service.*;
-import com.mycompany.restaurantmanagement.ui.*;
+import com.mycompany.restaurantmanagement.repository.CategoryRepository;
+import com.mycompany.restaurantmanagement.repository.InventoryRepository;
+import com.mycompany.restaurantmanagement.repository.MenuItemRepository;
+import com.mycompany.restaurantmanagement.repository.OrderRepository;
+import com.mycompany.restaurantmanagement.repository.TableRepository;
+import com.mycompany.restaurantmanagement.repository.UserRepository;
+import com.mycompany.restaurantmanagement.repository.UserRepository_File;
 
-import java.util.Scanner;
+import com.mycompany.restaurantmanagement.service.AuthService;
+import com.mycompany.restaurantmanagement.service.InventoryService;
+import com.mycompany.restaurantmanagement.service.MenuService;
+import com.mycompany.restaurantmanagement.service.OrderDetailService;
+import com.mycompany.restaurantmanagement.service.OrderService;
+import com.mycompany.restaurantmanagement.service.TableService;
 
-/**
- *
- * @author khoa0
- */
+import com.mycompany.restaurantmanagement.ui.LoginUI;
+import com.mycompany.restaurantmanagement.ui.Router;
+
 public class RestaurantManagement {
 
     public static void main(String[] args) {
 
+        // ==========================
+        // Repository Layer
+        // ==========================
 
-        // ── Khởi tạo Repository (đúng thứ tự phụ thuộc) ────────────────────
-        // CategoryRepository không phụ thuộc ai — khởi tạo trước
-        CategoryRepository categoryRepo = new CategoryRepository();
-        // MenuItemRepository cần CategoryRepository để resolve Category khi đọc file
-        MenuItemRepository menuRepo = new MenuItemRepository(categoryRepo);
-        // InventoryRepository cần MenuItemRepository để resolve MenuItem khi đọc file
-        InventoryRepository inventoryRepo = new InventoryRepository(menuRepo);
+        UserRepository userRepository = new UserRepository_File();
 
-        // ── Khởi tạo Service ────────────────────────────────────────────────
-        CategoryService categoryService = new CategoryService(categoryRepo);
-        MenuService menuService = new MenuService(menuRepo);
-        InventoryService inventoryService = new InventoryService(inventoryRepo);
+        CategoryRepository categoryRepository = new CategoryRepository();
 
-        // ── Khởi tạo UI ─────────────────────────────────────────────────────
-        Scanner scanner = new Scanner(System.in);
-        InventoryUI inventoryUI = new InventoryUI(
-                scanner,
-                categoryService,
-                menuService,
-                inventoryService);
+        MenuItemRepository menuRepository = new MenuItemRepository(categoryRepository);
 
-        // ── Chạy ứng dụng ───────────────────────────────────────────────────
-        System.out.println("=================================================");
-        System.out.println("  Bingchiling Restaurant Management System");
-        System.out.println("  Module 1: User Authentication & Authorization");
-        System.out.println("  Module 2: Inventory & Product Management");
-        System.out.println("  Module 3: Order Management");
-        System.out.println("=================================================");
-        inventoryUI.show();
+        InventoryRepository inventoryRepository = new InventoryRepository(menuRepository);
 
-        System.out.println("Goodbye!");
-        scanner.close();
+        TableRepository tableRepository = new TableRepository();
+
+        OrderRepository orderRepository = new OrderRepository();
+
+        // ==========================
+        // Service Layer
+        // ==========================
+
+        AuthService authService = new AuthService(userRepository);
+
+        MenuService menuService = new MenuService(menuRepository);
+
+        InventoryService inventoryService = new InventoryService(inventoryRepository);
+
+        TableService tableService = new TableService(tableRepository);
+
+        OrderService orderService = new OrderService(orderRepository, tableRepository);
+
+        OrderDetailService orderDetailService =
+                new OrderDetailService(
+                        orderRepository,
+                        menuRepository,
+                        inventoryService
+                );
+
+        // ==========================
+        // UI Layer
+        // ==========================
+
+        Router router = new Router(tableService, orderService, orderDetailService, menuService);
+
+        LoginUI loginUI = new LoginUI(authService, router);
+
+        loginUI.show();
     }
 }
