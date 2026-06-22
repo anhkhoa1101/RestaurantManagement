@@ -1,0 +1,5 @@
+1|Table A|true
+2|Table B|false
+3|Table C|true
+4|VIP 1|false
+5|VIP 2|false
