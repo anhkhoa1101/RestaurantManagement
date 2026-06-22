@@ -1,0 +1,4 @@
+1|Khai Vi|Cac mon khai vi tinh te mo dau bua an|true
+2|Mon Chinh|Cac mon chinh dac sac cua nha hang|true
+3|Trang Miet|Cac mon trang miet cao cap ket thuc bua an|true
+4|Do Uong|Thuc uong thuong hang va cocktail dac che|true

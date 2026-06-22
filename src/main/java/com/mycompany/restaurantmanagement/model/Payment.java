@@ -40,6 +40,10 @@ public void setAmount(Double amount) { this.amount = amount;}
 public Date getPaymentDate() {return this.paymentDate;}
 public void setPaymentDate(Date paymentDate) {this.paymentDate = paymentDate;}
 
+public Date getDate() {
+    return this.paymentDate;
+}
+
 public String getMethod() {return this.method;}
 public void setMethod(String method) {this.method = method;}
 

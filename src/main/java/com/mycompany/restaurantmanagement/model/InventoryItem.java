@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.restaurantmanagement.model;
 
-/**
- *
- * @author khoa0
- */
 import java.util.Date;
 
 public class InventoryItem {
+
     private int inventoryId;
     private MenuItem menuItem;
     private int quantity;
@@ -20,15 +13,16 @@ public class InventoryItem {
 
     // ─── Constructor ─────────────────────────────────────────────────────────
 
-    public InventoryItem(int inventoryId, MenuItem menuItem, int quantity, int minQuantity, String unit){
+    public InventoryItem(int inventoryId, MenuItem menuItem, int quantity, int minQuantity, String unit) {
         this.inventoryId = inventoryId;
         this.menuItem = menuItem;
         this.quantity = quantity;
         this.minQuantity = minQuantity;
+        this.unit = unit;
         this.lastUpdated = new Date();
     }
 
-    // ─── Getters and Setters ──────────────────────────────────────────────────
+    // ─── Getters ──────────────────────────────────────────────────────────────
 
     public int getInventoryId() {
         return inventoryId;
@@ -54,16 +48,10 @@ public class InventoryItem {
         return lastUpdated;
     }
 
-    public void setInventoryId(int inventoryId) {
-        this.inventoryId = inventoryId;
-    }
+    // ─── Setters ──────────────────────────────────────────────────────────────
 
     public void setMenuItem(MenuItem menuItem) {
         this.menuItem = menuItem;
-    }
-
-    public void setLastUpdated(Date lastUpdated) {
-        this.lastUpdated = lastUpdated;
     }
 
     public void setMinQuantity(int minQuantity) {
@@ -74,37 +62,43 @@ public class InventoryItem {
         this.unit = unit;
     }
 
-    // ─── Update số lượng tồn kho ───────────────────────────────────────────────
+    // ─── Thay đổi số lượng tồn kho ───────────────────────────────────────────
+    // Mọi thay đổi quantity đều đi qua 2 method này để đảm bảo validate + cập nhật
+    // lastUpdated
 
-    public void setQuantity(int quantity) {
-        if (quantity < 0) throw new IllegalArgumentException("Quantity must not be negative.");
-        this.quantity = quantity;
+    public void addStock(int amount) {
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount to add must be greater than 0.");
+        this.quantity += amount;
         this.lastUpdated = new Date();
     }
 
-    public void reduceStock(int quantity) {
-        if (quantity <= 0)
+    public void reduceStock(int amount) {
+        if (amount <= 0)
             throw new IllegalArgumentException("Stock to reduce must be greater than 0.");
-        if (quantity > this.quantity)
+        if (amount > this.quantity)
             throw new IllegalStateException(
-                    "Insufficient stock: need " + quantity + " but only " + quantity + " " + unit + " available.");
-        this.quantity = quantity;
+                    "Insufficient stock: need " + amount + " but only " + this.quantity + " " + unit + " available.");
+        this.quantity -= amount;
         this.lastUpdated = new Date();
     }
 
-    // ─── Kiểm tra tình trạng tồn kho ───────────────────────────────────────────────
+    // ─── Kiểm tra trạng thái kho ──────────────────────────────────────────────
 
-    public boolean isLowStock(){
-        return  quantity <= minQuantity && quantity > 0;
+    public boolean isLowStock() {
+        return quantity <= minQuantity && quantity > 0;
     }
-    public boolean isOutOfStock(){
+
+    public boolean isOutOfStock() {
         return quantity == 0;
     }
 
     // ─── toString ─────────────────────────────────────────────────────────────
 
     @Override
-    public String toString(){
-        return String.format("InventoryItem{id=%d, item='%s', qty=%d %s, min=%d, lastUpdated=%s}", inventoryId, menuItem != null ? menuItem.getName() : "N/A", quantity, unit, minQuantity, lastUpdated);
+    public String toString() {
+        return String.format("InventoryItem{id=%d, item='%s', qty=%d %s, min=%d, lastUpdated=%s}",
+                inventoryId, menuItem != null ? menuItem.getName() : "N/A",
+                quantity, unit, minQuantity, lastUpdated);
     }
 }
