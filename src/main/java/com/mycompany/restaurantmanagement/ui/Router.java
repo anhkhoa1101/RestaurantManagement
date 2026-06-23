@@ -50,10 +50,8 @@ public class Router {
                 break;
 
             case CASHIER:
-
-                System.out.println("Payment UI chưa triển khai.");
+                new PaymentUI().showMenu();
                 break;
-
             default:
                 System.out.println("Role không hợp lệ.");
         }
