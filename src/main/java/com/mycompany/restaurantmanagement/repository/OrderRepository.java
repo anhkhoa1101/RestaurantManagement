@@ -1,6 +1,8 @@
 package com.mycompany.restaurantmanagement.repository;
 
+import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
+import com.mycompany.restaurantmanagement.model.OrderDetail;
 import com.mycompany.restaurantmanagement.config.AppConfig;
 
 import java.io.BufferedReader;
@@ -86,16 +88,23 @@ public class OrderRepository {
         return false;
     }
 
-    // Không nhận path nữa, dùng thống nhất từ AppConfig
+    /**
+     * Nạp dữ liệu từ 2 file:
+     * 1. orders.txt        -> orderId, paid
+     * 2. order_details.txt -> orderId, itemId, itemName, price, qty
+     */
     public void loadFromFile() {
 
         orders.clear();
 
+        // ---- 1. Đọc orders.txt -> tạo Order cơ bản (chưa có món) ----
         try (BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDERS_FILE_PATH))) {
 
             String line;
 
             while ((line = br.readLine()) != null) {
+
+                if (line.isBlank()) continue;
 
                 String[] d = line.split(",");
 
@@ -109,26 +118,88 @@ public class OrderRepository {
             }
 
         } catch (IOException e) {
-            System.out.println("Lỗi đọc file: " + e.getMessage());
+            System.out.println("Lỗi đọc file orders: " + e.getMessage());
+        }
+
+        // ---- 2. Đọc order_details.txt -> gắn món vào Order tương ứng ----
+        try (BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDER_DETAILS_FILE_PATH))) {
+
+            String line;
+
+            while ((line = br.readLine()) != null) {
+
+                if (line.isBlank()) continue;
+
+                String[] d = line.split(",");
+
+                String orderId  = d[0];
+                int    itemId   = Integer.parseInt(d[1]);
+                String itemName = d[2];
+                double price    = Double.parseDouble(d[3]);
+                int    qty      = Integer.parseInt(d[4]);
+
+                Order order = findById(orderId);
+
+                if (order == null) {
+                    // Chi tiết món không khớp đơn nào trong orders.txt -> bỏ qua dữ liệu rác
+                    continue;
+                }
+
+                MenuItem item = new MenuItem(itemId, itemName, "", price, null);
+                order.addDetail(item, qty);
+            }
+
+        } catch (IOException e) {
+            System.out.println("Lỗi đọc file order details: " + e.getMessage());
+        }
+
+        // ---- 3. Tính lại tổng tiền sau khi đã nạp đủ chi tiết món ----
+        for (Order o : orders) {
+            o.calculateTotal();
         }
     }
 
+    /**
+     * Ghi dữ liệu ra 2 file: orders.txt và order_details.txt
+     */
     public void saveToFile() {
 
+        // ---- 1. Ghi orders.txt ----
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(AppConfig.ORDERS_FILE_PATH))) {
 
             for (Order o : orders) {
 
-                bw.write(
-                        o.getOrderId() + "," +
-                                o.isPaid()
-                );
-
+                bw.write(o.getOrderId() + "," + o.isPaid());
                 bw.newLine();
             }
 
         } catch (IOException e) {
-            System.out.println("Lỗi ghi file: " + e.getMessage());
+            System.out.println("Lỗi ghi file orders: " + e.getMessage());
+        }
+
+        // ---- 2. Ghi order_details.txt ----
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(AppConfig.ORDER_DETAILS_FILE_PATH))) {
+
+            for (Order o : orders) {
+
+                for (OrderDetail d : o.getDetails()) {
+
+                    MenuItem item = d.getMenuItem();
+
+                    bw.write(
+                            o.getOrderId() + "," +
+                                    item.getItemId() + "," +
+                                    item.getName() + "," +
+                                    item.getPrice() + "," +
+                                    d.getQty()
+                    );
+
+                    bw.newLine();
+                }
+            }
+
+        } catch (IOException e) {
+            System.out.println("Lỗi ghi file order details: " + e.getMessage());
         }
     }
 }
