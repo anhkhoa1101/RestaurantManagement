@@ -104,7 +104,7 @@ public class OrderRepository {
 
             while ((line = br.readLine()) != null) {
 
-                if (line.isBlank()) continue;
+                if (line.trim().isEmpty()) continue;
 
                 String[] d = line.split(",");
 
@@ -128,7 +128,7 @@ public class OrderRepository {
 
             while ((line = br.readLine()) != null) {
 
-                if (line.isBlank()) continue;
+                if (line.trim().isEmpty()) continue;
 
                 String[] d = line.split(",");
 
@@ -141,7 +141,6 @@ public class OrderRepository {
                 Order order = findById(orderId);
 
                 if (order == null) {
-                    // Chi tiết món không khớp đơn nào trong orders.txt -> bỏ qua dữ liệu rác
                     continue;
                 }
 
@@ -191,7 +190,7 @@ public class OrderRepository {
                                     item.getItemId() + "," +
                                     item.getName() + "," +
                                     item.getPrice() + "," +
-                                    d.getQty()
+                                    d.getQuantity()
                     );
 
                     bw.newLine();
