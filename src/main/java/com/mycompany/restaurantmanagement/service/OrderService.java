@@ -1,108 +1,115 @@
-
 package com.mycompany.restaurantmanagement.service;
 
+import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
-import com.mycompany.restaurantmanagement.model.Table;
 import com.mycompany.restaurantmanagement.repository.OrderRepository;
-import com.mycompany.restaurantmanagement.repository.TableRepository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 public class OrderService {
 
     private OrderRepository orderRepository;
+    private TableService tableService;
+    private InventoryService inventoryService;
 
-    private TableRepository tableRepository;
-
-    public OrderService(
-            OrderRepository orderRepository,
-            TableRepository tableRepository
-    ) {
+    public OrderService(OrderRepository orderRepository, TableService tableService, InventoryService inventoryService) {
         this.orderRepository = orderRepository;
-        this.tableRepository = tableRepository;
+        this.tableService = tableService;
+        this.inventoryService = inventoryService;
     }
 
-    // Tạo đơn mới cho bàn
     public Order createOrder(int tableId) {
 
-        Optional<Table> found = tableRepository.findById(tableId);
+        boolean assigned = tableService.assignTable(tableId);
 
-        if (!found.isPresent())
-            return null;
+        if (!assigned) {
+            throw new IllegalStateException("Bàn không khả dụng");
+        }
 
-        Table table = found.get();
+        Order order = new Order(UUID.randomUUID().toString(), tableService.getAllTables().stream().filter(t -> t.getTableId() == tableId).findFirst().orElse(null));
 
-        if (!table.checkAvailability())
-            return null;
-
-        table.setOccupied(true);
-
-        tableRepository.update();
-
-        Order order = new Order(orderRepository.nextId(), table);
-
-        orderRepository.save(order);
+        orderRepository.add(order);
 
         return order;
     }
 
-    // Hủy đơn
-    public boolean cancelOrder(String orderId) {
+    public void addItemToOrder(String orderId, MenuItem item, int qty) {
 
-        Optional<Order> found =
-                orderRepository.findById(orderId);
+        Order order = orderRepository.findById(orderId);
 
-        if (!found.isPresent())
-            return false;
+        if (order == null) {
+            throw new IllegalArgumentException("Không tìm thấy đơn");
+        }
 
-        Order order = found.get();
+        boolean success = inventoryService.reduceStock(item.getItemId(), qty);
 
-        if (order.isPaid())
-            return false;
+        if (!success) {
+            throw new IllegalStateException("Không đủ tồn kho");
+        }
 
-        order.getTable().setOccupied(false);
+        order.addDetail(item, qty);
 
-        tableRepository.update();
+        order.calculateTotal();
 
-        return orderRepository.deleteById(orderId);
+        orderRepository.update(order);
     }
 
-    // Đóng đơn (thanh toán xong)
-    public boolean closeOrder(String orderId) {
+    public void removeItemFromOrder(String orderId, MenuItem item) {
 
-        Optional<Order> found = orderRepository.findById(orderId);
+        Order order = orderRepository.findById(orderId);
 
-        if (!found.isPresent())
-            return false;
+        if (order == null) {
+            throw new IllegalArgumentException("Không tìm thấy đơn");
+        }
 
-        Order order = found.get();
+        order.removeDetail(item);
+
+        order.calculateTotal();
+
+        orderRepository.update(order);
+    }
+
+    public Order getOrderById(String orderId) {
+        return orderRepository.findById(orderId);
+    }
+
+    public List<Order> getOpenOrders() {
+        return orderRepository.findUnpaidOrders();
+    }
+
+    public Order checkoutOrder(String orderId) {
+
+        Order order = orderRepository.findById(orderId);
+
+        if (order == null) {
+            throw new IllegalArgumentException("Không tìm thấy đơn");
+        }
+
+        order.calculateTotal();
 
         order.setPaid(true);
 
-        order.getTable().setOccupied(false);
+        tableService.releaseTable(order.getTable().getTableId());
 
-        orderRepository.update();
+        orderRepository.update(order);
 
-        tableRepository.update();
-
-        return true;
+        return order;
     }
 
-    // Lấy tất cả đơn
-    public List<Order> getAllOrders() { return orderRepository.findAll(); }
+    public void cancelOrder(String orderId) {
 
-    // Lấy danh sách đơn theo bàn
-    public List<Order> getOrdersByTable(int tableId) {return orderRepository.findByTable(tableId); }
+        Order order = orderRepository.findById(orderId);
 
-    // Tìm đơn theo ID
-    public Optional<Order> getOrderById(String orderId) { return orderRepository.findById(orderId); }
+        if (order == null) {
+            return;
+        }
 
-    // Tính tổng tiền đơn
-    public double getOrderTotal(String orderId) {
-        Optional<Order> found = orderRepository.findById(orderId);
-        if (!found.isPresent())
-            return 0;
-        return found.get().getTotalPrice();
+        if (order.getTable() != null) {
+
+            tableService.releaseTable(order.getTable().getTableId());
+        }
+
+        orderRepository.delete(orderId);
     }
 }

@@ -10,11 +10,16 @@ import java.util.List;
  *   - false -> đơn đang mở, nhân viên còn được thêm/xoá món
  *   - true  -> đơn đã thanh toán (do Member 4 cập nhật), bị khoá, không sửa được nữa
  */
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 public class Order {
 
     private String orderId;
     private Table table;
     private List<OrderDetail> details;
+    private Date createdAt;
     private double totalPrice;
     private boolean isPaid;
 
@@ -22,8 +27,9 @@ public class Order {
         this.orderId = orderId;
         this.table = table;
         this.details = new ArrayList<>();
+        this.createdAt = new Date();
         this.totalPrice = 0;
-        this.isPaid = false; // đơn mới tạo luôn ở trạng thái chưa thanh toán
+        this.isPaid = false;
     }
 
     public String getOrderId() {
@@ -50,40 +56,60 @@ public class Order {
         this.isPaid = paid;
     }
 
-    // Thêm món vào đơn. Nếu món này đã có trong đơn rồi thì chỉ tăng số lượng lên
-    // (không tạo dòng OrderDetail mới trùng món)
     public void addDetail(MenuItem item, int qty) {
-        for (OrderDetail d : details) {
-            if (d.getMenuItem().getItemId() == item.getItemId()) {
-                d.setQuantity(d.getQuantity() + qty);
+
+        for (OrderDetail detail : details) {
+            if (detail.getMenuItem().getItemId() == item.getItemId() ) {
+                detail.setQuantity(detail.getQuantity() + qty);
                 calculateTotal();
                 return;
             }
         }
+
         details.add(new OrderDetail(item, qty));
         calculateTotal();
     }
 
-    // Xoá hẳn 1 món khỏi đơn (xoá cả dòng, không phải giảm số lượng)
     public void removeDetail(MenuItem item) {
-        details.removeIf(d -> d.getMenuItem().getItemId() == item.getItemId());
+        details.removeIf(detail ->
+                detail.getMenuItem().getItemId() == item.getItemId() );
+
         calculateTotal();
     }
 
-    // Tính lại tổng tiền đơn = tổng các subTotal của từng dòng chi tiết
-    public double calculateTotal() {
-        double sum = 0;
-        for (OrderDetail d : details) {
-            sum += d.getSubTotal();
+    public void updateDetailQuantity(MenuItem item, int qty) {
+
+        for (OrderDetail detail : details) {
+
+            if (detail.getMenuItem().getItemId() == item.getItemId() ) {
+                detail.setQuantity(qty);
+                break;
+            }
         }
-        this.totalPrice = sum;
+
+        calculateTotal();
+    }
+
+    public double calculateTotal() {
+
+        totalPrice = 0;
+
+        for (OrderDetail detail : details) {
+            totalPrice += detail.getSubTotal();
+        }
+
         return totalPrice;
     }
 
     @Override
     public String toString() {
-        return "Đơn #" + orderId + " - Bàn: " + table.getTableName()
-                + " - Tổng: " + totalPrice + " đ - "
-                + (isPaid ? "Đã thanh toán" : "Chưa thanh toán");
+        return "Order{" +
+                "orderId='" + orderId + '\'' +
+                ", table=" + table.getTableName() +
+                ", createdAt=" + createdAt +
+                ", totalPrice=" + totalPrice +
+                ", isPaid=" + isPaid +
+                ", details=" + details +
+                '}';
     }
 }

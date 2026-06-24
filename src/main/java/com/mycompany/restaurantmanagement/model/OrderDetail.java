@@ -16,7 +16,7 @@ public class OrderDetail {
     public OrderDetail(MenuItem menuItem, int quantity) {
         this.menuItem = menuItem;
         this.quantity = quantity;
-        this.orderPrice = menuItem.getPrice(); // chốt giá ngay lúc gọi món
+        this.orderPrice = menuItem.getPrice();
     }
 
     public MenuItem getMenuItem() {
@@ -27,21 +27,28 @@ public class OrderDetail {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setQuantity(int q) {
+        if (q <= 0) {
+            throw new IllegalArgumentException("Số lượng phải > 0");
+        }
+        this.quantity = q;
     }
 
     public double getOrderPrice() {
         return orderPrice;
     }
 
-    // Tiền của riêng dòng món này = đơn giá (đã chốt) * số lượng
     public double getSubTotal() {
         return orderPrice * quantity;
     }
 
     @Override
     public String toString() {
-        return "  - " + menuItem.getName() + " x" + quantity + " = " + getSubTotal() + " đ";
+        return "OrderDetail{" +
+                "menuItem=" + menuItem.getName() +
+                ", quantity=" + quantity +
+                ", orderPrice=" + orderPrice +
+                ", subTotal=" + getSubTotal() +
+                '}';
     }
 }

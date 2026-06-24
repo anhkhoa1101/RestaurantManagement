@@ -6,16 +6,21 @@ package com.mycompany.restaurantmanagement.model;
  */
 public class Table {
 
+    // Attributes (private theo nguyên tắc đóng gói)
     private int tableId;
     private String tableName;
+    private int capacity;
     private boolean isOccupied;
 
-    public Table(int tableId, String tableName) {
+    // Constructor
+    public Table(int tableId, String tableName, int capacity, boolean isOccupied) {
         this.tableId = tableId;
         this.tableName = tableName;
-        this.isOccupied = false; // bàn mới tạo luôn ở trạng thái Trống
+        this.capacity = capacity;
+        this.isOccupied = isOccupied;
     }
 
+    // Getter
     public int getTableId() {
         return tableId;
     }
@@ -24,22 +29,32 @@ public class Table {
         return tableName;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+
     public boolean isOccupied() {
         return isOccupied;
     }
 
-    // Bàn còn dùng được (để tạo đơn mới) khi nó KHÔNG đang có khách
+    // Kiểm tra bàn còn trống không
     public boolean checkAvailability() {
         return !isOccupied;
     }
 
+    // Cập nhật trạng thái bàn
     public void setOccupied(boolean occupied) {
         this.isOccupied = occupied;
     }
 
+    // Hiển thị thông tin
     @Override
     public String toString() {
-        return "Bàn #" + tableId + " - " + tableName + " - "
-                + (isOccupied ? "Đang có khách" : "Trống");
+        return "Table{" +
+                "tableId=" + tableId +
+                ", tableName='" + tableName + '\'' +
+                ", capacity=" + capacity +
+                ", isOccupied=" + isOccupied +
+                '}';
     }
 }

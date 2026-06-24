@@ -1,144 +1,91 @@
-
 package com.mycompany.restaurantmanagement.service;
 
 import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
 import com.mycompany.restaurantmanagement.model.OrderDetail;
-import com.mycompany.restaurantmanagement.repository.MenuItemRepository;
-import com.mycompany.restaurantmanagement.repository.OrderRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class OrderDetailService {
 
-    private OrderRepository orderRepository;
-
-    private MenuItemRepository menuItemRepository;
-
     private InventoryService inventoryService;
 
-    public OrderDetailService(
-            OrderRepository orderRepository,
-            MenuItemRepository menuItemRepository,
-            InventoryService inventoryService
-    ) {
-        this.orderRepository = orderRepository;
-        this.menuItemRepository = menuItemRepository;
+    public OrderDetailService(InventoryService inventoryService) {
         this.inventoryService = inventoryService;
     }
 
-    // Thêm món vào đơn
-    public boolean addItemToOrder(String orderId, int menuItemId, int quantity) {
+    public OrderDetail addDetail(Order order, MenuItem item, int qty) {
 
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        if (!validateStock(item, qty)) {
+            throw new IllegalStateException("Không đủ tồn kho");
+        }
 
-        if (!orderOpt.isPresent())
-            return false;
+        boolean reduced =
+                inventoryService.reduceStock(
+                        item.getItemId(),
+                        qty
+                );
 
-        Optional<MenuItem> itemOpt = menuItemRepository.findById(menuItemId);
+        if (!reduced) {
+            throw new IllegalStateException("Không thể cập nhật kho");
+        }
 
-        if (!itemOpt.isPresent())
-            return false;
+        order.addDetail(
+                item,
+                qty
+        );
 
-        if (!inventoryService.isInStock(menuItemId))
-            return false;
-
-        if (!inventoryService.reduceStock(menuItemId, quantity))
-            return false;
-
-        Order order = orderOpt.get();
-
-        MenuItem item = itemOpt.get();
-
-        if (order.isPaid())
-            return false;
-
-        order.addDetail(item, quantity);
-
-        orderRepository.update();
-
-        return true;
-    }
-
-    // Xóa món khỏi đơn
-    public boolean removeItemFromOrder(String orderId, int menuItemId) {
-
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
-
-        if (!orderOpt.isPresent())
-            return false;
-
-        Optional<MenuItem> itemOpt = menuItemRepository.findById(menuItemId);
-
-        if (!itemOpt.isPresent())
-            return false;
-
-        Order order = orderOpt.get();
-
-        if (order.isPaid())
-            return false;
-
-        order.removeDetail(itemOpt.get());
-
-        orderRepository.update();
-
-        return true;
-    }
-
-    // Cập nhật số lượng món
-    public boolean updateItemQuantity(String orderId, int menuItemId, int newQuantity) {
-
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
-
-        if (!orderOpt.isPresent())
-            return false;
-
-        Order order = orderOpt.get();
-
-        if (order.isPaid())
-            return false;
+        order.calculateTotal();
 
         for (OrderDetail detail : order.getDetails()) {
 
-            if (detail.getMenuItem().getItemId() == menuItemId) {
-                detail.setQuantity(newQuantity);
-                order.calculateTotal();
-                orderRepository.update();
+            if (
+                    detail.getMenuItem()
+                            .getItemId()
+                            == item.getItemId()
+            ) {
 
-                return true;
+                return detail;
             }
         }
 
-        return false;
+        return null;
     }
 
-    // Lấy danh sách chi tiết đơn
-    public List<OrderDetail> getOrderDetails(String orderId) {
+    public void updateDetail(Order order, MenuItem item, int qty) {
 
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
-
-        if (!orderOpt.isPresent())
-            return new ArrayList<OrderDetail>();
-
-        return orderOpt.get().getDetails();
-    }
-
-    // Lấy thành tiền của 1 dòng món
-    public double getSubTotal(String orderId, int menuItemId) {
-
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
-
-        if (!orderOpt.isPresent())
-            return 0;
-
-        for (OrderDetail detail : orderOpt.get().getDetails()) {
-
-            if (detail.getMenuItem().getItemId() == menuItemId)
-                return detail.getSubTotal();
+        if (!validateStock(item, qty)) {
+            throw new IllegalStateException("Không đủ tồn kho");
         }
 
-        return 0;
+        order.updateDetailQuantity(
+                item,
+                qty
+        );
+
+        order.calculateTotal();
+
+        inventoryService.reduceStock(
+                item.getItemId(),
+                qty
+        );
+    }
+
+    public void removeDetail(Order order, MenuItem item) {
+
+        order.removeDetail(
+                item
+        );
+
+        order.calculateTotal();
+    }
+
+    public boolean validateStock(MenuItem item, int qty) {
+
+        if (qty <= 0) {
+            return false;
+        }
+
+        return inventoryService.isInStock(
+                item.getItemId()
+        );
     }
 }

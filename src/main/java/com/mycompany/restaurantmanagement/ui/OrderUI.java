@@ -1,311 +1,205 @@
 package com.mycompany.restaurantmanagement.ui;
 
+import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
 import com.mycompany.restaurantmanagement.model.OrderDetail;
-import com.mycompany.restaurantmanagement.service.MenuService;
+import com.mycompany.restaurantmanagement.model.Table;
 import com.mycompany.restaurantmanagement.service.OrderDetailService;
 import com.mycompany.restaurantmanagement.service.OrderService;
+import com.mycompany.restaurantmanagement.service.TableService;
 
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * [Member 3]
- * Console UI quản lý đơn hàng.
- *
- * Chức năng:
- * - Tạo đơn
- * - Gọi món
- * - Xóa món
- * - Cập nhật số lượng
- * - Xem danh sách đơn
- * - Xem chi tiết đơn
- * - Đóng đơn
- * - Hủy đơn
- */
 public class OrderUI {
 
-    // Service xử lý nghiệp vụ Order
+    private TableService tableService;
     private OrderService orderService;
-
-    // Service xử lý món trong đơn
     private OrderDetailService orderDetailService;
+    private Scanner sc;
 
-    // Service đọc menu
-    private MenuService menuService;
-
-    // Nhập dữ liệu từ bàn phím
-    private Scanner scanner;
-
-    // Constructor
-    public OrderUI(
-            OrderService orderService,
-            OrderDetailService orderDetailService,
-            MenuService menuService
-    ) {
+    public OrderUI(TableService tableService, OrderService orderService, OrderDetailService orderDetailService) {
+        this.tableService = tableService;
         this.orderService = orderService;
         this.orderDetailService = orderDetailService;
-        this.menuService = menuService;
-        this.scanner = new Scanner(System.in);
+        this.sc = new Scanner(System.in);
     }
 
-    /**
-     * Chạy giao diện chính
-     */
-    public void start() {
+    public void showTableMap() {
+
+        List<Table> tables = tableService.getAllTables();
+
+        System.out.println("\n===== DANH SÁCH BÀN =====");
+
+        for (Table t : tables) {
+
+            System.out.println(t.getTableId() + " | " + t.getTableName() + " | " + (t.isOccupied() ? "Đang dùng" : "Trống"));
+        }
+    }
+
+    public void createNewOrder() {
+
+        showTableMap();
+
+        System.out.print("Nhập ID bàn: ");
+
+        int tableId = Integer.parseInt(sc.nextLine());
+
+        try {
+
+            Order order = orderService.createOrder(tableId);
+
+            System.out.println("Tạo đơn thành công: " + order.getOrderId());
+
+        } catch (Exception e) {
+
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void addOrRemoveItem() {
+
+        System.out.print("Nhập mã đơn: ");
+
+        String orderId = sc.nextLine();
+
+        Order order = orderService.getOrderById(orderId);
+
+        if (order == null) {
+
+            System.out.println("Không tìm thấy đơn");
+
+            return;
+        }
+
+        System.out.println("1. Thêm món");
+
+        System.out.println("2. Xóa món");
+
+        int choice = Integer.parseInt(sc.nextLine());
+
+        System.out.print("Mã món: ");
+
+        int itemId = Integer.parseInt(sc.nextLine());
+
+        System.out.print("Số lượng: ");
+
+        int qty = Integer.parseInt(sc.nextLine());
+
+        MenuItem item = new MenuItem(itemId, "Unknown", "", 0, null);
+
+        try {
+
+            if (choice == 1) {
+
+                orderDetailService.addDetail(order, item, qty);
+
+            } else {
+
+                orderDetailService.removeDetail(order, item);
+            }
+
+            System.out.println("Thành công");
+
+        } catch (Exception e) {
+
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void viewOrderDetail() {
+
+        System.out.print("Nhập mã đơn: ");
+
+        String id = sc.nextLine();
+
+        Order order = orderService.getOrderById(id);
+
+        if (order == null) {
+
+            System.out.println("Không tìm thấy đơn");
+
+            return;
+        }
+
+        System.out.println("\n===== CHI TIẾT ĐƠN =====");
+
+        for (OrderDetail d : order.getDetails()) {
+
+            System.out.println(d);
+        }
+
+        System.out.println("Tổng tiền: " + order.getTotalPrice());
+    }
+
+    public void confirmCheckout() {
+
+        System.out.print("Nhập mã đơn: ");
+
+        String id = sc.nextLine();
+
+        try {
+
+            Order order = orderService.checkoutOrder(id);
+
+            System.out.println("Thanh toán thành công");
+
+            System.out.println("Tổng tiền: " + order.getTotalPrice());
+
+        } catch (Exception e) {
+
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void run() {
 
         while (true) {
 
-            show();
+            System.out.println("\n===== ORDER MENU =====");
 
-            int choice =
-                    Integer.parseInt(scanner.nextLine());
+            System.out.println("1. Xem bàn");
+
+            System.out.println("2. Tạo đơn");
+
+            System.out.println("3. Thêm/Xóa món");
+
+            System.out.println("4. Xem đơn");
+
+            System.out.println("5. Thanh toán");
+
+            System.out.println("0. Thoát");
+
+            int choice = Integer.parseInt(sc.nextLine());
 
             switch (choice) {
 
                 case 1:
-                    createOrder();
+                    showTableMap();
                     break;
 
                 case 2:
-                    addItem();
+                    createNewOrder();
                     break;
 
                 case 3:
-                    removeItem();
+                    addOrRemoveItem();
                     break;
 
                 case 4:
-                    updateQuantity();
-                    break;
-
-                case 5:
-                    viewOrders();
-                    break;
-
-                case 6:
                     viewOrderDetail();
                     break;
 
-                case 7:
-                    closeOrder();
-                    break;
-
-                case 8:
-                    cancelOrder();
+                case 5:
+                    confirmCheckout();
                     break;
 
                 case 0:
                     return;
 
                 default:
-                    System.out.println("Invalid choice");
+                    System.out.println("Lựa chọn không hợp lệ");
             }
         }
-    }
-
-    /**
-     * Hiển thị menu chức năng
-     */
-    public void show() {
-
-        System.out.println("\n===== ORDER MANAGEMENT =====");
-
-        System.out.println("1. Create Order");
-
-        System.out.println("2. Add Item");
-
-        System.out.println("3. Remove Item");
-
-        System.out.println("4. Update Quantity");
-
-        System.out.println("5. View Orders");
-
-        System.out.println("6. View Order Detail");
-
-        System.out.println("7. Close Order");
-
-        System.out.println("8. Cancel Order");
-
-        System.out.println("0. Exit");
-
-        System.out.print("Choice: ");
-    }
-
-    /**
-     * Tạo đơn mới
-     */
-    public void createOrder() {
-
-        System.out.print("Table ID: ");
-
-        int tableId =
-                Integer.parseInt(scanner.nextLine());
-
-        Order order =
-                orderService.createOrder(tableId);
-
-        if (order == null)
-            System.out.println("Create order failed");
-
-        else
-            System.out.println(order);
-    }
-
-    /**
-     * Thêm món vào đơn
-     */
-    public void addItem() {
-
-        System.out.print("Order ID: ");
-
-        String orderId =
-                scanner.nextLine();
-
-        System.out.print("Menu Item ID: ");
-
-        int itemId =
-                Integer.parseInt(scanner.nextLine());
-
-        System.out.print("Quantity: ");
-
-        int qty =
-                Integer.parseInt(scanner.nextLine());
-
-        boolean success =
-                orderDetailService.addItemToOrder(
-                        orderId,
-                        itemId,
-                        qty
-                );
-
-        System.out.println(success ? "Add success" : "Add failed");
-    }
-
-    /**
-     * Xóa món khỏi đơn
-     */
-    public void removeItem() {
-
-        System.out.print("Order ID: ");
-
-        String orderId =
-                scanner.nextLine();
-
-        System.out.print("Menu Item ID: ");
-
-        int itemId =
-                Integer.parseInt(scanner.nextLine());
-
-        boolean success =
-                orderDetailService.removeItemFromOrder(
-                        orderId,
-                        itemId
-                );
-
-        System.out.println(success ? "Remove success" : "Remove failed");
-    }
-
-    /**
-     * Đổi số lượng món
-     */
-    public void updateQuantity() {
-
-        System.out.print("Order ID: ");
-
-        String orderId =
-                scanner.nextLine();
-
-        System.out.print("Menu Item ID: ");
-
-        int itemId =
-                Integer.parseInt(scanner.nextLine());
-
-        System.out.print("New Quantity: ");
-
-        int qty =
-                Integer.parseInt(scanner.nextLine());
-
-        boolean success =
-                orderDetailService.updateItemQuantity(
-                        orderId,
-                        itemId,
-                        qty
-                );
-
-        System.out.println(
-                success
-                        ? "Update success"
-                        : "Update failed"
-        );
-    }
-
-    /**
-     * Xem toàn bộ đơn
-     */
-    public void viewOrders() {
-
-        List<Order> orders =
-                orderService.getAllOrders();
-
-        for (Order o : orders)
-            System.out.println(o);
-    }
-
-    /**
-     * Xem chi tiết đơn
-     */
-    public void viewOrderDetail() {
-
-        System.out.print("Order ID: ");
-
-        String orderId =
-                scanner.nextLine();
-
-        List<OrderDetail> details =
-                orderDetailService.getOrderDetails(orderId);
-
-        for (OrderDetail d : details)
-            System.out.println(d);
-    }
-
-    /**
-     * Thanh toán đơn
-     */
-    public void closeOrder() {
-
-        System.out.print("Order ID: ");
-
-        String orderId =
-                scanner.nextLine();
-
-        boolean success =
-                orderService.closeOrder(orderId);
-
-        System.out.println(
-                success
-                        ? "Closed"
-                        : "Close failed"
-        );
-    }
-
-    /**
-     * Hủy đơn
-     */
-    public void cancelOrder() {
-
-        System.out.print("Order ID: ");
-
-        String orderId =
-                scanner.nextLine();
-
-        boolean success =
-                orderService.cancelOrder(orderId);
-
-        System.out.println(
-                success
-                        ? "Cancelled"
-                        : "Cancel failed"
-        );
     }
 }
