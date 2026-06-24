@@ -22,7 +22,7 @@ public class OrderDetail {
     public MenuItem getMenuItem() {
         return menuItem;
     }
-
+    
     public int getQuantity() {
         return quantity;
     }

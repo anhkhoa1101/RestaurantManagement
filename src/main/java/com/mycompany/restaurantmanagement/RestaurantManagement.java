@@ -29,6 +29,8 @@ public class RestaurantManagement {
 
         UserRepository userRepository = new UserRepository_File();
 
+        AuthService authService = new AuthService(userRepository);
+
         CategoryRepository categoryRepository = new CategoryRepository();
 
         MenuItemRepository menuRepository = new MenuItemRepository(categoryRepository);
@@ -43,7 +45,7 @@ public class RestaurantManagement {
         // Service Layer
         // ==========================
 
-        AuthService authService = new AuthService(userRepository);
+
 
         MenuService menuService = new MenuService(menuRepository);
 
@@ -51,13 +53,10 @@ public class RestaurantManagement {
 
         TableService tableService = new TableService(tableRepository);
 
-        OrderService orderService = new OrderService(orderRepository, tableService, inventoryService);
+        OrderService orderService = new OrderService(orderRepository ,tableService, inventoryService);
 
-        OrderDetailService orderDetailService =
-                new OrderDetailService(
-                        inventoryService
-                );
-
+        OrderDetailService orderDetailService = new OrderDetailService( inventoryService, orderRepository );
+                
         // ==========================
         // UI Layer
         // ==========================

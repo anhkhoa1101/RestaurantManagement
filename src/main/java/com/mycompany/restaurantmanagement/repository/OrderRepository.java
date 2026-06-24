@@ -1,19 +1,15 @@
 package com.mycompany.restaurantmanagement.repository;
 
 import com.mycompany.restaurantmanagement.model.Order;
-import com.mycompany.restaurantmanagement.model.Table;
+import com.mycompany.restaurantmanagement.config.AppConfig;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.io.IOException;
-
 
 public class OrderRepository {
 
@@ -90,11 +86,12 @@ public class OrderRepository {
         return false;
     }
 
-    public void loadFromFile(String path) {
+    // Không nhận path nữa, dùng thống nhất từ AppConfig
+    public void loadFromFile() {
 
         orders.clear();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDERS_FILE_PATH))) {
 
             String line;
 
@@ -106,7 +103,6 @@ public class OrderRepository {
                 boolean paid = Boolean.parseBoolean(d[1]);
 
                 Order order = new Order(orderId, null);
-
                 order.setPaid(paid);
 
                 orders.add(order);
@@ -117,9 +113,9 @@ public class OrderRepository {
         }
     }
 
-    public void saveToFile(String path) {
+    public void saveToFile() {
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(path))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(AppConfig.ORDERS_FILE_PATH))) {
 
             for (Order o : orders) {
 

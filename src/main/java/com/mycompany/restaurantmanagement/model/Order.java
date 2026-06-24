@@ -72,7 +72,7 @@ public class Order {
 
     public void removeDetail(MenuItem item) {
         details.removeIf(detail ->
-                detail.getMenuItem().getItemId() == item.getItemId() );
+                detail.getMenuItem().getItemId() == item.getItemId());
 
         calculateTotal();
     }
