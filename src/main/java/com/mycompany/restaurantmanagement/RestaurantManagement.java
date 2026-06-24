@@ -51,12 +51,10 @@ public class RestaurantManagement {
 
         TableService tableService = new TableService(tableRepository);
 
-        OrderService orderService = new OrderService(orderRepository, tableRepository);
+        OrderService orderService = new OrderService(orderRepository, tableService, inventoryService);
 
         OrderDetailService orderDetailService =
                 new OrderDetailService(
-                        orderRepository,
-                        menuRepository,
                         inventoryService
                 );
 
