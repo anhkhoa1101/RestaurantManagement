@@ -9,96 +9,96 @@ package com.mycompany.restaurantmanagement.service;
  * @author khoa0
  */
 import com.mycompany.restaurantmanagement.model.Payment;
-import java.util.ArrayList;
+import com.mycompany.restaurantmanagement.model.PaymentMethod;
+import com.mycompany.restaurantmanagement.model.PaymentStatus;
+import com.mycompany.restaurantmanagement.repository.PaymentRepository;
+import java.util.Date;
 import java.util.List;
    
-// INTERFACE ĐA HÌNH CHO CÁC PHƯƠNG THỨC THANH TOÁN
+// ===== THUỘC TÍNH =====
 public class PaymentService {
-    public interface PaymentMethod {
-        boolean pay(double amount);
-        String getMethodName();
-    }
+    private PaymentRepository paymentRepository;
+    private InvoiceService invoiceService;
 
-    //TIỀN MẶT
-    public class CashPayment implements PaymentMethod {
-        @Override
-        public boolean pay(double amount) {
-            System.out.println("Thanh toán bằng tiền mặt: " + amount + " VND");
-            return true;
-        }
-        @Override
-        public String getMethodName() {
-            return "Tiền mặt";
-        }
-    }
-    
-    //QUÉT QR
-    public class QRPayment implements PaymentMethod {
-        @Override
-        public boolean pay(double amount) {
-            System.out.println("Thanh toán bằng quét QR: " + amount + " VND");
-            return true;
-        }
-        @Override
-        public String getMethodName() {
-            return "Quét QR";
-        }
-    }
-
-    private List<Payment> paymentList;
-
+// ===== CONSTRUCTOR =====  
 public PaymentService() {
-    this.paymentList = new ArrayList<>();
-}
-//Xử lý thanh toán với phương thức truyền vào
+    this.paymentRepository = new PaymentRepository();
+    this.invoiceService = new InvoiceService();
+}  
 
-public boolean processPayment(String paymentId, PaymentMethod method) {
-    Payment payment = findById(paymentId);
-    if (payment != null) {
-        System.out.println("Phương thức thanh toán: " + method.getMethodName());
-        return method.pay(payment.getAmount());
-    }
-    System.out.println("Không tìm thấy giao dịch: " + paymentId);
-    return false;
+public PaymentService(PaymentRepository paymentRepository, InvoiceService invoiceService) {
+    this.paymentRepository = paymentRepository;
+    this.invoiceService = invoiceService;       
 }
 
-// THÊM GIAO DỊCH
-public void addPayment(Payment payment) {
-    if (payment == null) {
-        System.out.println("Giao dịch không hợp lệ!");
-        return;
-    }
-    paymentList.add(payment);
-    System.out.println("Đã thêm giao dịch: " + payment.getPaymentId());
-}
+// ===== PHƯƠNG THỨC =====
 
-// TÌM GIAO DỊCH THEO ID
-public Payment findById(String id) {
-    if (id == null) {
-        System.out.println("ID không hợp lệ!");
-        return null;
-    }
-    for (int i = 0; i < paymentList.size(); i++) {
-        if (paymentList.get(i).getPaymentId().equals(id)) {
-            return paymentList.get(i);
+//1. Tọa giao dịch thanh toán mới
+public Payment createPayment(String invoiceId, double amount, PaymentMethod method) {
+
+    // tạo mã giao dịch tự động 
+    String paymentId = "PAY" + System.currentTimeMillis(); 
+
+     // xử lý theo từng loại enum
+        switch (method) {
+            case CASH:
+                System.out.println("Thanh toán tiền mặt: " + amount + " VND");
+                break;
+            case CARD:
+                System.out.println("Thanh toán thẻ ngân hàng: " + amount + " VND");
+                break;
+            case BANK_TRANSFER:
+                System.out.println("Chuyển khoản ngân hàng: " + amount + " VND");
+                break;
+            default:
+                System.out.println("Phương thức không hợp lệ!");
         }
-    }
-    return null;
+
+    // tạo đối tượng Payment mới
+    Payment payment = new Payment(paymentId, invoiceId, amount, new Date(), method);    
+
+    // lưu giao dịch vào repository
+    payment.setStatus(PaymentStatus.PENDING);
+    paymentRepository.save(payment);
+    System.out.println("Đã tạo giao dịch thanh toán: " + paymentId);
+    return payment;
 }
 
-// LẤY DANH SÁCH GIAO DỊCH
-public List<Payment> getAllPayments() {
-    return paymentList;
-}
-// HỦY GIAO DỊCH
-public boolean cancelPayment(String paymentId) {
-    Payment payment = findById(paymentId);
-    if (payment != null) {
-        payment.cancelPayment();  
-        return true;   
-    } else {
+//2. Xác nhận thanh toán
+public boolean confirmPayment(String paymentId) {
+    Payment payment = paymentRepository.findById(paymentId);
+    if (payment == null) {
         System.out.println("Không tìm thấy giao dịch: " + paymentId);
         return false;
-    } 
-  }
+    }
+
+    // xử lý thanh toán
+    boolean success = payment.processPayment();
+    if (success) {
+        payment.setStatus(PaymentStatus.SUCCESS);
+        paymentRepository.save(payment);
+        System.out.println("Xác nhận thanh toán thành công: " + paymentId);
+    } else {
+        System.out.println("Xác nhận thanh toán thất bại: " + paymentId);
+    }
+    return success;
+}
+    
+//3. Hủy thanh toán
+public void cancelPayment(String paymentId) {
+    Payment payment = paymentRepository.findById(paymentId);
+    if (payment != null ) {
+        payment.cancelPayment();
+        payment.setStatus(PaymentStatus.CANCELLED);
+        paymentRepository.save(payment);   // cập nhật lại trạng thái
+        System.out.println("Hủy thanh toán thành công: " + paymentId);
+    } else {
+        System.out.println("Không tìm thấy giao dịch: " + paymentId);
+    }
+}
+
+//4. Lấy lịch sử giao dịch thanh toán
+public List<Payment> getPaymentHistory() {
+    return paymentRepository.findAll();
+   }
 }
