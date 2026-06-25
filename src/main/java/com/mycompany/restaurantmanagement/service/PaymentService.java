@@ -18,7 +18,7 @@ import java.util.List;
 // ===== THUỘC TÍNH =====
 public class PaymentService {
     private PaymentRepository paymentRepository;
-    private InvoiceService invoiceService;
+    private InvoiceService    invoiceService;
 
 // ===== CONSTRUCTOR =====  
 public PaymentService() {

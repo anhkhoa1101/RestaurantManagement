@@ -2,7 +2,6 @@ package com.mycompany.restaurantmanagement.repository;
 
 import com.mycompany.restaurantmanagement.model.Invoice;
 import com.mycompany.restaurantmanagement.model.InvoiceStatus;
-import com.mycompany.restaurantmanagement.model.Order;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -13,11 +12,13 @@ import java.util.Date;
 import java.util.List;
 
 public class InvoiceRepository {
+    private static final String FILE_PATH = "data/invoices.txt";
     private List<Invoice> invoices;
 
 //CONSTRUCTOR
 public InvoiceRepository() {
     this.invoices = new ArrayList<>();
+    loadFromFile(FILE_PATH);
 }
 
 //Phương thức
@@ -30,6 +31,7 @@ public void add(Invoice invoice) {
     }
     invoices.add(invoice);
     System.out.println("Đã thêm hóa đơn: " + invoice.getInvoiceId());
+    saveToFile(FILE_PATH);
 }
 
 // 2. Tìm hóa đơn theo ID
@@ -96,6 +98,7 @@ public boolean update(Invoice invoice) {
         if (invoices.get(idx).getInvoiceId().equals(invoice.getInvoiceId())) {
         invoices.set(idx, invoice);
                 System.out.println("Đã cập nhật hóa đơn: " + invoice.getInvoiceId());
+                saveToFile(FILE_PATH);
                 return true;
             }
         }

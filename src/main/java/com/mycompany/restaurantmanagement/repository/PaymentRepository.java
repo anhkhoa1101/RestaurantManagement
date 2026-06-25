@@ -15,11 +15,13 @@ import java.util.List;
 public class PaymentRepository {
 
 //THUÔC TÍNH 
+private static final String FILE_PATH = "data/payments.txt";
 private List<Payment> payments;
 
 //CONSTRUCTOR
 public PaymentRepository() {
     this.payments = new ArrayList<>();
+    loadFromFile(FILE_PATH);
 }
 
 //Phương thức
@@ -32,6 +34,7 @@ public void add(Payment payment) {
     }
     payments.add(payment);
         System.out.println("Đã thêm giao dịch: " + payment.getPaymentId());
+        saveToFile(FILE_PATH);
     }
 
 //2. Tìm giao dịch theo ID
@@ -79,6 +82,7 @@ public boolean update(Payment payment) {
         if (payments.get(i).getPaymentId().equals(payment.getPaymentId())) {
             payments.set(i, payment);
             System.out.println("Đã cập nhật giao dịch: " + payment.getPaymentId());
+            saveToFile(FILE_PATH);
             return true;
         }
     }

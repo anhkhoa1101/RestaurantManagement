@@ -4,8 +4,8 @@ import com.mycompany.restaurantmanagement.model.Invoice;
 import com.mycompany.restaurantmanagement.model.InvoiceStatus;
 import com.mycompany.restaurantmanagement.model.Order;
 import com.mycompany.restaurantmanagement.model.Payment;
-import com.mycompany.restaurantmanagement.repository.*;
-import com.mycompany.restaurantmanagement.service.*;
+import com.mycompany.restaurantmanagement.repository.InvoiceRepository;
+import com.mycompany.restaurantmanagement.repository.OrderRepository; 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +21,9 @@ public class InvoiceService {
 //CONSTRUCTOR
 public InvoiceService() {
         this.invoiceRepository = new InvoiceRepository();
+        this.orderRepository   = new OrderRepository(); 
+        this.tableService      = null; //chờ member 3
+        this.inventoryService  = null; // chờ member 2
         this.orderService = new OrderService(orderRepository, tableService, inventoryService);
     }
 
