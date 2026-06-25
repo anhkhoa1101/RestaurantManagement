@@ -120,9 +120,7 @@ public class OrderRepository extends BaseRepository<Order, String> {
     private void loadOrderDetails(Order order) {
 
         try (
-
                 BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDER_DETAILS_FILE_PATH))
-
         ) {
 
             String line;
