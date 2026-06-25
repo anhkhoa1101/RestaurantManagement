@@ -2,109 +2,142 @@ package com.mycompany.restaurantmanagement.service;
 
 import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
+import com.mycompany.restaurantmanagement.model.Table;
 import com.mycompany.restaurantmanagement.repository.OrderRepository;
 
 import java.util.List;
 import java.util.UUID;
 
-public class OrderService {
+public class OrderService extends BaseService<Order, String> {
 
-    private OrderRepository orderRepository;
-    private TableService tableService;
-    private InventoryService inventoryService;
+    private final TableService tableService;
 
-    public OrderService(OrderRepository orderRepository,
-                        TableService tableService,
-                        InventoryService inventoryService) {
-        this.orderRepository  = orderRepository;
-        this.tableService     = tableService;
+    private final InventoryService inventoryService;
+
+    public OrderService(OrderRepository repository, TableService tableService, InventoryService inventoryService) {
+
+        super(repository);
+
+        this.tableService = tableService;
+
         this.inventoryService = inventoryService;
 
-        // Nạp dữ liệu từ file khi khởi tạo service
-        orderRepository.loadFromFile();
     }
 
     public Order createOrder(int tableId) {
+
         boolean assigned = tableService.assignTable(tableId);
+
         if (!assigned) {
+
             throw new IllegalStateException("Bàn không khả dụng");
+
         }
 
-        Order order = new Order(
-                UUID.randomUUID().toString(),
-                tableService.getAllTables().stream()
-                        .filter(t -> t.getTableId() == tableId)
-                        .findFirst()
-                        .orElse(null)
-        );
+        Table table = tableService.getById(tableId);
 
-        orderRepository.add(order);
-        orderRepository.saveToFile();
+        Order order = new Order(UUID.randomUUID().toString(), table);
+
+        add(order);
+
         return order;
+
     }
 
     public void addItemToOrder(String orderId, MenuItem item, int qty) {
-        Order order = orderRepository.findById(orderId);
+
+        Order order = getById(orderId);
+
         if (order == null) {
+
             throw new IllegalArgumentException("Không tìm thấy đơn");
+
         }
 
-        boolean success = inventoryService.reduceStock(item.getItemId(), qty);
-        if (!success) {
+        boolean reduced = inventoryService.reduceStock(item.getItemId(), qty);
+
+        if (!reduced) {
+
             throw new IllegalStateException("Không đủ tồn kho");
+
         }
 
         order.addDetail(item, qty);
+
         order.calculateTotal();
-        orderRepository.update(order);
-        orderRepository.saveToFile();
+
+        update(order);
+
     }
 
     public void removeItemFromOrder(String orderId, MenuItem item) {
-        Order order = orderRepository.findById(orderId);
+
+        Order order = getById(orderId);
+
         if (order == null) {
+
             throw new IllegalArgumentException("Không tìm thấy đơn");
+
         }
 
         order.removeDetail(item);
-        order.calculateTotal();
-        orderRepository.update(order);
-        orderRepository.saveToFile();
-    }
 
-    public Order getOrderById(String orderId) {
-        return orderRepository.findById(orderId);
+        order.calculateTotal();
+
+        update(order);
+
     }
 
     public List<Order> getOpenOrders() {
-        return orderRepository.findUnpaidOrders();
+
+        return ((OrderRepository) repository).findUnpaidOrders();
+
     }
 
     public Order checkoutOrder(String orderId) {
-        Order order = orderRepository.findById(orderId);
+
+        Order order = getById(orderId);
+
         if (order == null) {
+
             throw new IllegalArgumentException("Không tìm thấy đơn");
+
         }
 
         order.calculateTotal();
+
         order.setPaid(true);
-        tableService.releaseTable(order.getTable().getTableId());
-        orderRepository.update(order);
-        orderRepository.saveToFile();
+
+        if (order.getTable() != null) {
+
+            tableService.releaseTable(order.getTable().getTableId());
+
+        }
+
+        update(order);
+
         return order;
+
     }
 
     public void cancelOrder(String orderId) {
-        Order order = orderRepository.findById(orderId);
+
+        Order order = getById(orderId);
+
         if (order == null) {
+
             return;
+
         }
 
         if (order.getTable() != null) {
+
             tableService.releaseTable(order.getTable().getTableId());
+
         }
 
-        orderRepository.delete(orderId);
-        orderRepository.saveToFile();
+        remove(orderId);
+
     }
+
 }

@@ -2,7 +2,7 @@ package com.mycompany.restaurantmanagement.repository;
 
 import com.mycompany.restaurantmanagement.model.Invoice;
 import com.mycompany.restaurantmanagement.model.InvoiceStatus;
-import com.mycompany.restaurantmanagement.model.Order;
+import com.mycompany.restaurantmanagement.config.AppConfig;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -29,7 +29,7 @@ public void add(Invoice invoice) {
         return;
     }
     invoices.add(invoice);
-    System.out.println("Đã thêm hóa đơn: " + invoice.getInvoiceId());
+    saveToFile(AppConfig.INVOICE_FILE_PATH);
 }
 
 // 2. Tìm hóa đơn theo ID

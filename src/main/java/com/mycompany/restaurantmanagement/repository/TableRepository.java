@@ -1,131 +1,93 @@
 package com.mycompany.restaurantmanagement.repository;
 
+import com.mycompany.restaurantmanagement.config.AppConfig;
 import com.mycompany.restaurantmanagement.model.Table;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-/**
- * [Member 3] Repository - đọc/ghi danh sách Table xuống file data/tables.txt
- * Định dạng mỗi dòng:  id|tenBan|isOccupied
- */
-
-public class TableRepository {
-
-    private List<Table> tables;
+public class TableRepository extends BaseRepository<Table, Integer> {
 
     public TableRepository() {
-        tables = new ArrayList<>();
+
+        super(AppConfig.TABLES_FILE_PATH);
+
     }
 
-    public void add(Table t) {
-        tables.add(t);
-    }
+    @Override
+    public Table findById(Integer id) {
 
-    public Table findById(int id) {
-        for (Table t : tables) {
-            if (t.getTableId() == id) {
-                return t;
+        for (Table table : data) {
+
+            if (table.getTableId() == id) {
+
+                return table;
+
             }
+
         }
+
         return null;
+
     }
 
-    public List<Table> findAll() {
-        return tables;
+    @Override
+    public void save(Table entity) {
+
+        Table old = findById(entity.getTableId());
+
+        if (old != null) {
+
+            data.remove(old);
+
+        }
+
+        data.add(entity);
+
+        saveToFile();
+
     }
 
     public List<Table> findAvailable() {
 
         List<Table> available = new ArrayList<>();
 
-        for (Table t : tables) {
-            if (t.checkAvailability()) {
-                available.add(t);
+        for (Table table : data) {
+
+            if (table.checkAvailability()) {
+
+                available.add(table);
+
             }
+
         }
 
         return available;
+
     }
 
-    public boolean update(Table updated) {
+    @Override
+    protected Table parseLine(String line) {
 
-        for (int i = 0; i < tables.size(); i++) {
+        String[] d = line.split(",");
 
-            if (tables.get(i).getTableId() == updated.getTableId()) {
-                tables.set(i, updated);
-                return true;
-            }
-        }
+        int id = Integer.parseInt(d[0]);
 
-        return false;
+        String name = d[1];
+
+        int capacity = Integer.parseInt(d[2]);
+
+        boolean occupied = Boolean.parseBoolean(d[3]);
+
+        return new Table(id, name, capacity, occupied);
+
     }
 
-    public boolean delete(int id) {
+    @Override
+    protected String toLine(Table table) {
 
-        for (Table t : tables) {
+        return table.getTableId() + "," + table.getTableName() + "," + table.getCapacity() + "," + table.isOccupied();
 
-            if (t.getTableId() == id) {
-                tables.remove(t);
-                return true;
-            }
-        }
-
-        return false;
     }
 
-    public void loadFromFile(String path) {
-
-        tables.clear();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-
-            String line;
-
-            while ((line = br.readLine()) != null) {
-
-                String[] d = line.split(",");
-
-                int id = Integer.parseInt(d[0]);
-                String name = d[1];
-                int capacity = Integer.parseInt(d[2]);
-                boolean occupied = Boolean.parseBoolean(d[3]);
-
-                tables.add(
-                        new Table(
-                                id,
-                                name,
-                                capacity,
-                                occupied
-                        )
-                );
-            }
-
-        } catch (IOException e) {
-            System.out.println("Lỗi đọc file: " + e.getMessage());
-        }
-    }
-
-    public void saveToFile(String path) {
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(path))) {
-
-            for (Table t : tables) {
-
-                bw.write(
-                        t.getTableId() + "," +
-                                t.getTableName() + "," +
-                                t.getCapacity() + "," +
-                                t.isOccupied()
-                );
-
-                bw.newLine();
-            }
-
-        } catch (IOException e) {
-            System.out.println("Lỗi ghi file: " + e.getMessage());
-        }
-    }
 }

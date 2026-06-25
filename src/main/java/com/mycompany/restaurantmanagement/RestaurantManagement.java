@@ -45,8 +45,6 @@ public class RestaurantManagement {
         // Service Layer
         // ==========================
 
-
-
         MenuService menuService = new MenuService(menuRepository);
 
         InventoryService inventoryService = new InventoryService(inventoryRepository);
@@ -55,7 +53,7 @@ public class RestaurantManagement {
 
         OrderService orderService = new OrderService(orderRepository ,tableService, inventoryService);
 
-        OrderDetailService orderDetailService = new OrderDetailService( inventoryService, orderRepository );
+        OrderDetailService orderDetailService = new OrderDetailService( inventoryService, orderService );
                 
         // ==========================
         // UI Layer

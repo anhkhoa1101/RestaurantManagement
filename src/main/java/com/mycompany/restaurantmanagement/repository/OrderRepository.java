@@ -1,204 +1,154 @@
 package com.mycompany.restaurantmanagement.repository;
 
+import com.mycompany.restaurantmanagement.config.AppConfig;
 import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
 import com.mycompany.restaurantmanagement.model.OrderDetail;
-import com.mycompany.restaurantmanagement.config.AppConfig;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.IOException;
 
-public class OrderRepository {
-
-    private List<Order> orders;
+public class OrderRepository extends BaseRepository<Order, String> {
 
     public OrderRepository() {
-        orders = new ArrayList<>();
+
+        super(AppConfig.ORDERS_FILE_PATH);
+
     }
 
-    public void add(Order o) {
-        orders.add(o);
-    }
-
+    @Override
     public Order findById(String id) {
-        for (Order o : orders) {
+
+        for (Order o : data) {
+
             if (o.getOrderId().equals(id)) {
+
                 return o;
+
             }
+
         }
+
         return null;
+
     }
 
-    public List<Order> findAll() {
-        return orders;
+    @Override
+    public void save(Order entity) {
+
+        Order old = findById(entity.getOrderId());
+
+        if (old != null) {
+
+            data.remove(old);
+
+        }
+
+        data.add(entity);
+
+        saveToFile();
+
+    }
+
+    @Override
+    protected Order parseLine(String line) {
+
+        String[] d = line.split(",");
+
+        String orderId = d[0];
+
+        boolean paid = Boolean.parseBoolean(d[1]);
+
+        Order order = new Order(orderId, null);
+
+        order.setPaid(paid);
+
+        loadOrderDetails(order);
+
+        order.calculateTotal();
+
+        return order;
+
+    }
+
+    @Override
+    protected String toLine(Order order) {
+
+        return order.getOrderId() + "," + order.isPaid();
+
     }
 
     public List<Order> findByTable(int tableId) {
+
         List<Order> result = new ArrayList<>();
 
-        for (Order o : orders) {
+        for (Order o : data) {
+
             if (o.getTable() != null && o.getTable().getTableId() == tableId) {
+
                 result.add(o);
+
             }
+
         }
 
         return result;
+
     }
 
     public List<Order> findUnpaidOrders() {
+
         List<Order> result = new ArrayList<>();
 
-        for (Order o : orders) {
+        for (Order o : data) {
+
             if (!o.isPaid()) {
+
                 result.add(o);
+
             }
+
         }
 
         return result;
+
     }
 
-    public boolean update(Order updated) {
+    private void loadOrderDetails(Order order) {
 
-        for (int i = 0; i < orders.size(); i++) {
+        try (
 
-            if (orders.get(i).getOrderId().equals(updated.getOrderId())) {
-                orders.set(i, updated);
-                return true;
-            }
-        }
+                BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDER_DETAILS_FILE_PATH))
 
-        return false;
-    }
-
-    public boolean delete(String id) {
-
-        for (Order o : orders) {
-
-            if (o.getOrderId().equals(id)) {
-                orders.remove(o);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Nạp dữ liệu từ 2 file:
-     * 1. orders.txt        -> orderId, paid
-     * 2. order_details.txt -> orderId, itemId, itemName, price, qty
-     */
-    public void loadFromFile() {
-
-        orders.clear();
-
-        // ---- 1. Đọc orders.txt -> tạo Order cơ bản (chưa có món) ----
-        try (BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDERS_FILE_PATH))) {
+        ) {
 
             String line;
 
             while ((line = br.readLine()) != null) {
 
-                if (line.trim().isEmpty()) continue;
-
                 String[] d = line.split(",");
 
-                String orderId = d[0];
-                boolean paid = Boolean.parseBoolean(d[1]);
+                if (!d[0].equals(order.getOrderId())) {
 
-                Order order = new Order(orderId, null);
-                order.setPaid(paid);
-
-                orders.add(order);
-            }
-
-        } catch (IOException e) {
-            System.out.println("Lỗi đọc file orders: " + e.getMessage());
-        }
-
-        // ---- 2. Đọc order_details.txt -> gắn món vào Order tương ứng ----
-        try (BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDER_DETAILS_FILE_PATH))) {
-
-            String line;
-
-            while ((line = br.readLine()) != null) {
-
-                if (line.trim().isEmpty()) continue;
-
-                String[] d = line.split(",");
-
-                String orderId  = d[0];
-                int    itemId   = Integer.parseInt(d[1]);
-                String itemName = d[2];
-                double price    = Double.parseDouble(d[3]);
-                int    qty      = Integer.parseInt(d[4]);
-
-                Order order = findById(orderId);
-
-                if (order == null) {
                     continue;
+
                 }
 
-                MenuItem item = new MenuItem(itemId, itemName, "", price, null);
-                order.addDetail(item, qty);
+                MenuItem item = new MenuItem(Integer.parseInt(d[1]), d[2], "", Double.parseDouble(d[3]), null);
+
+                order.addDetail(item, Integer.parseInt(d[4]));
+
             }
 
         } catch (IOException e) {
-            System.out.println("Lỗi đọc file order details: " + e.getMessage());
+
+            System.out.println("Load order details failed: " + e.getMessage());
+
         }
 
-        // ---- 3. Tính lại tổng tiền sau khi đã nạp đủ chi tiết món ----
-        for (Order o : orders) {
-            o.calculateTotal();
-        }
     }
 
-    /**
-     * Ghi dữ liệu ra 2 file: orders.txt và order_details.txt
-     */
-    public void saveToFile() {
-
-        // ---- 1. Ghi orders.txt ----
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(AppConfig.ORDERS_FILE_PATH))) {
-
-            for (Order o : orders) {
-
-                bw.write(o.getOrderId() + "," + o.isPaid());
-                bw.newLine();
-            }
-
-        } catch (IOException e) {
-            System.out.println("Lỗi ghi file orders: " + e.getMessage());
-        }
-
-        // ---- 2. Ghi order_details.txt ----
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(AppConfig.ORDER_DETAILS_FILE_PATH))) {
-
-            for (Order o : orders) {
-
-                for (OrderDetail d : o.getDetails()) {
-
-                    MenuItem item = d.getMenuItem();
-
-                    bw.write(
-                            o.getOrderId() + "," +
-                                    item.getItemId() + "," +
-                                    item.getName() + "," +
-                                    item.getPrice() + "," +
-                                    d.getQuantity()
-                    );
-
-                    bw.newLine();
-                }
-            }
-
-        } catch (IOException e) {
-            System.out.println("Lỗi ghi file order details: " + e.getMessage());
-        }
-    }
 }

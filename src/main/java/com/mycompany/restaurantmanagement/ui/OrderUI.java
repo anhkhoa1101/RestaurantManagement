@@ -4,6 +4,7 @@ import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
 import com.mycompany.restaurantmanagement.model.OrderDetail;
 import com.mycompany.restaurantmanagement.model.Table;
+
 import com.mycompany.restaurantmanagement.service.OrderDetailService;
 import com.mycompany.restaurantmanagement.service.OrderService;
 import com.mycompany.restaurantmanagement.service.TableService;
@@ -13,39 +14,53 @@ import java.util.Scanner;
 
 public class OrderUI {
 
-    private TableService tableService;
-    private OrderService orderService;
-    private OrderDetailService orderDetailService;
-    private Scanner sc;
+    private final TableService tableService;
+
+    private final OrderService orderService;
+
+    private final OrderDetailService orderDetailService;
+
+    private final Scanner sc;
 
     public OrderUI(TableService tableService, OrderService orderService, OrderDetailService orderDetailService) {
+
         this.tableService = tableService;
+
         this.orderService = orderService;
+
         this.orderDetailService = orderDetailService;
+
         this.sc = new Scanner(System.in);
+
     }
 
     public void showTableMap() {
 
-        List<Table> tables = tableService.getAllTables();
+        List<Table> tables = tableService.getAll();
 
         System.out.println("\n===== DANH SÁCH BÀN =====");
 
-        for (Table t : tables) {
+        for (Table table : tables) {
 
-            System.out.println(t.getTableId() + " | " + t.getTableName() + " | " + (t.isOccupied() ? "Đang dùng" : "Trống"));
+            System.out.println(
+
+                    table.getTableId() + " | " + table.getTableName() + " | " + table.getCapacity() + " người | " + (table.isOccupied() ? "Đang dùng" : "Trống")
+
+            );
+
         }
+
     }
 
     public void createNewOrder() {
 
-        showTableMap();
-
-        System.out.print("Nhập ID bàn: ");
-
-        int tableId = Integer.parseInt(sc.nextLine());
-
         try {
+
+            showTableMap();
+
+            System.out.print("Nhập ID bàn: ");
+
+            int tableId = Integer.parseInt(sc.nextLine());
 
             Order order = orderService.createOrder(tableId);
 
@@ -54,49 +69,59 @@ public class OrderUI {
         } catch (Exception e) {
 
             System.out.println(e.getMessage());
+
         }
+
     }
 
     public void addOrRemoveItem() {
 
-        System.out.print("Nhập mã đơn: ");
-
-        String orderId = sc.nextLine();
-
-        Order order = orderService.getOrderById(orderId);
-
-        if (order == null) {
-
-            System.out.println("Không tìm thấy đơn");
-
-            return;
-        }
-
-        System.out.println("1. Thêm món");
-
-        System.out.println("2. Xóa món");
-
-        int choice = Integer.parseInt(sc.nextLine());
-
-        System.out.print("Mã món: ");
-
-        int itemId = Integer.parseInt(sc.nextLine());
-
-        System.out.print("Số lượng: ");
-
-        int qty = Integer.parseInt(sc.nextLine());
-
-        MenuItem item = new MenuItem(itemId, "Unknown", "", 0, null);
-
         try {
+
+            System.out.print("Nhập mã đơn: ");
+
+            String orderId = sc.nextLine();
+
+            Order order = orderService.getById(orderId);
+
+            if (order == null) {
+
+                System.out.println("Không tìm thấy đơn");
+
+                return;
+
+            }
+
+            System.out.println("1. Thêm món");
+
+            System.out.println("2. Xóa món");
+
+            int choice = Integer.parseInt(sc.nextLine());
+
+            System.out.print("Mã món: ");
+
+            int itemId = Integer.parseInt(sc.nextLine());
+
+            MenuItem item = new MenuItem(itemId, "", "", 0, null);
 
             if (choice == 1) {
 
+                System.out.print("Số lượng: ");
+
+                int qty = Integer.parseInt(sc.nextLine());
+
                 orderDetailService.addDetail(order, item, qty);
+
+            } else if (choice == 2) {
+
+                orderDetailService.removeDetail(order, item);
 
             } else {
 
-                orderDetailService.removeDetail(order, item);
+                System.out.println("Lựa chọn không hợp lệ");
+
+                return;
+
             }
 
             System.out.println("Thành công");
@@ -104,7 +129,9 @@ public class OrderUI {
         } catch (Exception e) {
 
             System.out.println(e.getMessage());
+
         }
+
     }
 
     public void viewOrderDetail() {
@@ -113,32 +140,37 @@ public class OrderUI {
 
         String id = sc.nextLine();
 
-        Order order = orderService.getOrderById(id);
+        Order order = orderService.getById(id);
 
         if (order == null) {
 
             System.out.println("Không tìm thấy đơn");
 
             return;
+
         }
 
         System.out.println("\n===== CHI TIẾT ĐƠN =====");
 
-        for (OrderDetail d : order.getDetails()) {
+        for (OrderDetail detail : order.getDetails()) {
 
-            System.out.println(d);
+            System.out.println(detail);
+
         }
 
         System.out.println("Tổng tiền: " + order.getTotalPrice());
+
+        System.out.println("Trạng thái: " + (order.isPaid() ? "Đã thanh toán" : "Chưa thanh toán"));
+
     }
 
     public void confirmCheckout() {
 
-        System.out.print("Nhập mã đơn: ");
-
-        String id = sc.nextLine();
-
         try {
+
+            System.out.print("Nhập mã đơn: ");
+
+            String id = sc.nextLine();
 
             Order order = orderService.checkoutOrder(id);
 
@@ -149,7 +181,9 @@ public class OrderUI {
         } catch (Exception e) {
 
             System.out.println(e.getMessage());
+
         }
+
     }
 
     public void run() {
@@ -170,36 +204,60 @@ public class OrderUI {
 
             System.out.println("0. Thoát");
 
-            int choice = Integer.parseInt(sc.nextLine());
+            try {
 
-            switch (choice) {
+                int choice = Integer.parseInt(sc.nextLine());
 
-                case 1:
-                    showTableMap();
-                    break;
+                switch (choice) {
 
-                case 2:
-                    createNewOrder();
-                    break;
+                    case 1:
 
-                case 3:
-                    addOrRemoveItem();
-                    break;
+                        showTableMap();
 
-                case 4:
-                    viewOrderDetail();
-                    break;
+                        break;
 
-                case 5:
-                    confirmCheckout();
-                    break;
+                    case 2:
 
-                case 0:
-                    return;
+                        createNewOrder();
 
-                default:
-                    System.out.println("Lựa chọn không hợp lệ");
+                        break;
+
+                    case 3:
+
+                        addOrRemoveItem();
+
+                        break;
+
+                    case 4:
+
+                        viewOrderDetail();
+
+                        break;
+
+                    case 5:
+
+                        confirmCheckout();
+
+                        break;
+
+                    case 0:
+
+                        return;
+
+                    default:
+
+                        System.out.println("Lựa chọn không hợp lệ");
+
+                }
+
+            } catch (Exception e) {
+
+                System.out.println("Dữ liệu không hợp lệ");
+
             }
+
         }
+
     }
+
 }
