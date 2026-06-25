@@ -9,8 +9,18 @@ import com.mycompany.restaurantmanagement.service.OrderDetailService;
 import com.mycompany.restaurantmanagement.service.OrderService;
 import com.mycompany.restaurantmanagement.service.PaymentService;
 import com.mycompany.restaurantmanagement.service.TableService;
+import com.mycompany.restaurantmanagement.service.InventoryService;
+import com.mycompany.restaurantmanagement.service.CategoryService;
+
+import java.util.Scanner;
 
 public class Router {
+
+    private MenuService menuService;
+
+    private InventoryService inventoryService;
+
+    private CategoryService categoryService;
 
     private TableService tableService;
 
@@ -18,21 +28,23 @@ public class Router {
 
     private OrderDetailService orderDetailService;
 
-    private MenuService menuService;
-
     private InvoiceService invoiceService;
 
     private PaymentService paymentService;
 
     public Router(
 
+             MenuService menuService,
+
+            InventoryService inventoryService,
+
+            CategoryService categoryService,
+
             TableService tableService,
 
             OrderService orderService,
 
             OrderDetailService orderDetailService,
-
-            MenuService menuService,
 
             InvoiceService invoiceService,
 
@@ -75,6 +87,7 @@ public class Router {
                 break;
 
             case WAREHOUSE:
+                InventoryUI inventoryUI = new InventoryUI();
                 break;
 
             case EMPLOYEE:

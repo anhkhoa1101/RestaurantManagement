@@ -15,17 +15,7 @@ import com.mycompany.restaurantmanagement.repository.InvoiceRepository;
 import com.mycompany.restaurantmanagement.repository.PaymentRepository;
 
 //Service
-import com.mycompany.restaurantmanagement.service.AuthService;
-
-import com.mycompany.restaurantmanagement.service.InventoryService;
-import com.mycompany.restaurantmanagement.service.MenuService;
-
-import com.mycompany.restaurantmanagement.service.OrderDetailService;
-import com.mycompany.restaurantmanagement.service.OrderService;
-import com.mycompany.restaurantmanagement.service.TableService;
-
-import com.mycompany.restaurantmanagement.service.InvoiceService;
-import com.mycompany.restaurantmanagement.service.PaymentService;
+import com.mycompany.restaurantmanagement.service.*;
 
 import com.mycompany.restaurantmanagement.ui.LoginUI;
 import com.mycompany.restaurantmanagement.ui.Router;
@@ -64,6 +54,8 @@ public class RestaurantManagement {
 
         InventoryService inventoryService = new InventoryService(inventoryRepository);
 
+        CategoryService categoryService = new CategoryService(categoryRepository);
+
         TableService tableService = new TableService(tableRepository);
 
         OrderService orderService = new OrderService(orderRepository ,tableService, inventoryService);
@@ -78,7 +70,7 @@ public class RestaurantManagement {
         // UI Layer
         // ==========================
 
-        Router router = new Router(tableService, orderService, orderDetailService, menuService, invoiceService, paymentService);
+        Router router = new Router(menuService, inventoryService, categoryService, tableService, orderService, orderDetailService, invoiceService, paymentService);
 
         LoginUI loginUI = new LoginUI(authService, router);
 
