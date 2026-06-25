@@ -1,13 +1,13 @@
 package com.mycompany.restaurantmanagement.repository;
 
+import com.mycompany.restaurantmanagement.config.AppConfig;
 import com.mycompany.restaurantmanagement.model.Category;
 
 public class CategoryRepository extends BaseRepository<Category, Integer> {
-    private static final String FILE_PATH = "data/categories.txt";
     private int nextId = 1;
     //───Constructor──────────────────────────────────────────────────────────────
     public CategoryRepository() {
-        super(FILE_PATH);
+        super(AppConfig.CATEGORIES_FILE_PATH);
         calculateNextId();
     }
 

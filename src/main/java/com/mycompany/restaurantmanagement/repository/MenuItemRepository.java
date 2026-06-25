@@ -1,17 +1,17 @@
 package com.mycompany.restaurantmanagement.repository;
 
+import com.mycompany.restaurantmanagement.config.AppConfig;
 import com.mycompany.restaurantmanagement.model.Category;
 import com.mycompany.restaurantmanagement.model.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MenuItemRepository extends BaseRepository<MenuItem, Integer> {
-    private static final String FILE_PATH = "data/menu_items.txt";
     private final CategoryRepository categoryRepo;
     private int nextId = 1;
     //───Constructor──────────────────────────────────────────────────────────────
     public MenuItemRepository(CategoryRepository categoryRepo) {
-        super(FILE_PATH);
+        super(AppConfig.MENU_FILE_PATH);
         this.categoryRepo = categoryRepo;
         calculateNextId();
     }

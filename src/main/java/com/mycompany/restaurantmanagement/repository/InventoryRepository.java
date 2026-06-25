@@ -1,5 +1,6 @@
 package com.mycompany.restaurantmanagement.repository;
 
+import com.mycompany.restaurantmanagement.config.AppConfig;
 import com.mycompany.restaurantmanagement.model.InventoryItem;
 import com.mycompany.restaurantmanagement.model.MenuItem;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ public class InventoryRepository extends BaseRepository<InventoryItem, Integer> 
     private int nextId = 1;
     //───Constructor──────────────────────────────────────────────────────────────
     public InventoryRepository(MenuItemRepository menuItemRepo) {
-        super(FILE_PATH);
+        super(AppConfig.INVENTORY_FILE_PATH);
         this.menuItemRepo = menuItemRepo;
         calculateNextId();
     }

@@ -1,3 +1,4 @@
-1|admin|123456|Nguyen Van A|admin@gmail.com|MANAGER
-2|hr01|123456|Tran Thi B|hr01@gmail.com|EMPLOYEE
-3|cashier01|123456|Le Van C|cashier01@gmail.com|CASHIER
+1|admin|123456|DAI KA NGHIA|admin@gmail.com|MANAGER
+2|hr01|123456|Nguyen Hoang Anh Khoa|hr01@gmail.com|EMPLOYEE
+3|cashier01|123456|Tran Duc Anh|cashier01@gmail.com|CASHIER
+4|warehouse|123456|Dang Khoa|@gmail.com|WAREHOUSE
