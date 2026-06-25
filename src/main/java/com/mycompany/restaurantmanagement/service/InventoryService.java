@@ -5,66 +5,60 @@ import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.repository.InventoryRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class InventoryService {
+public class InventoryService extends BaseService<InventoryItem, Integer> {
 
-    private final InventoryRepository repository;
+    private final InventoryRepository inventoryRepository;
 
     public InventoryService(InventoryRepository repository) {
-        this.repository = repository;
+        super(repository);
+        this.inventoryRepository = repository;
     }
 
-    // Tạo mới một mặt hàng tồn kho
+    // Tạo mới một mặt hàng trong kho, tự động tạo ID mới và lưu vào file
     public InventoryItem addInventoryItem(MenuItem menuItem, int quantity, int minQuantity, String unit) {
-        InventoryItem item = new InventoryItem(repository.nextId(), menuItem, quantity, minQuantity, unit);
-        repository.save(item);
+        InventoryItem item = new InventoryItem(inventoryRepository.nextId(), menuItem, quantity, minQuantity, unit);
+        add(item);
         return item;
     }
 
-    // Nhập thêm hàng vào kho
-    public boolean restock(int inventoryId, int amount) {
-        Optional<InventoryItem> found = repository.findById(inventoryId);
-        if (!found.isPresent())
+    // Nhập thêm số lượng vào kho, tự động cập nhật và lưu vào file
+    public boolean restock(Integer inventoryId, int amount) {
+        InventoryItem found = getById(inventoryId);
+        if (found == null) {
             return false;
-        found.get().addStock(amount);
-        repository.update();
+        }
+        found.addStock(amount);
+        update(found); // Gọi hàm update của BaseService để lưu trạng thái mới
         return true;
     }
 
-    // Giảm tồn kho khi bán món (dùng bởi Module 3 — Order)
-    public boolean reduceStock(int menuItemId, int amount) {
-        Optional<InventoryItem> found = repository.findByMenuItemId(menuItemId);
-        if (!found.isPresent())
+    // tự động giảm số lượng trong kho khi bán món ăn, tự động cập nhật và lưu vào file
+    public boolean reduceStock(Integer menuItemId, int amount) {
+        InventoryItem found = inventoryRepository.findByMenuItemId(menuItemId);
+        if (found == null) {
             return false;
-        found.get().reduceStock(amount);
-        repository.update();
+        }
+        found.reduceStock(amount);
+        update(found);
         return true;
     }
 
-    // Kiểm tra món còn hàng không (dùng bởi Module 3 trước khi gọi món)
-    public boolean isInStock(int menuItemId) {
-        Optional<InventoryItem> found = repository.findByMenuItemId(menuItemId);
-        return found.isPresent() && !found.get().isOutOfStock();
+    // kiểm tra xem món ăn có còn trong kho hay không, dựa trên số lượng hiện tại
+    public boolean isInStock(Integer menuItemId) {
+        InventoryItem found = inventoryRepository.findByMenuItemId(menuItemId);
+        return found != null && !found.isOutOfStock();
     }
 
-    // Lấy tất cả mặt hàng tồn kho
-    public List<InventoryItem> getAllInventoryItems() {
-        return repository.findAll();
-    }
-
-    // Lấy danh sách mặt hàng đang ở mức tồn kho thấp
+    // Tìm kiếm các mặt hàng trong kho có số lượng thấp hơn mức tối thiểu, trả về danh sách các mặt hàng đó
     public List<InventoryItem> getLowStockItems() {
-        List<InventoryItem> result = new ArrayList<InventoryItem>();
-        for (InventoryItem item : repository.findAll()) {
-            if (item.isLowStock())
+        List<InventoryItem> result = new ArrayList<>();
+        // getAll() lấy từ BaseService, trả về bản sao danh sách an toàn
+        for (InventoryItem item : getAll()) { 
+            if (item.isLowStock()) {
                 result.add(item);
+            }
         }
         return result;
-    }
-
-    // Lấy thông tin một mặt hàng tồn kho theo ID
-    public Optional<InventoryItem> getById(int id) {
-        return repository.findById(id);
     }
 }
