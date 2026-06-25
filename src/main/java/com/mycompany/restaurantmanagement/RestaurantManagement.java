@@ -1,20 +1,31 @@
 
 package com.mycompany.restaurantmanagement;
 //Repository
+import com.mycompany.restaurantmanagement.repository.UserRepository;
+import com.mycompany.restaurantmanagement.repository.UserRepository_File;
+
 import com.mycompany.restaurantmanagement.repository.CategoryRepository;
 import com.mycompany.restaurantmanagement.repository.InventoryRepository;
 import com.mycompany.restaurantmanagement.repository.MenuItemRepository;
+
 import com.mycompany.restaurantmanagement.repository.OrderRepository;
 import com.mycompany.restaurantmanagement.repository.TableRepository;
-import com.mycompany.restaurantmanagement.repository.UserRepository;
-import com.mycompany.restaurantmanagement.repository.UserRepository_File;
+
+import com.mycompany.restaurantmanagement.repository.InvoiceRepository;
+import com.mycompany.restaurantmanagement.repository.PaymentRepository;
+
 //Service
 import com.mycompany.restaurantmanagement.service.AuthService;
+
 import com.mycompany.restaurantmanagement.service.InventoryService;
 import com.mycompany.restaurantmanagement.service.MenuService;
+
 import com.mycompany.restaurantmanagement.service.OrderDetailService;
 import com.mycompany.restaurantmanagement.service.OrderService;
 import com.mycompany.restaurantmanagement.service.TableService;
+
+import com.mycompany.restaurantmanagement.service.InvoiceService;
+import com.mycompany.restaurantmanagement.service.PaymentService;
 
 import com.mycompany.restaurantmanagement.ui.LoginUI;
 import com.mycompany.restaurantmanagement.ui.Router;
@@ -41,6 +52,10 @@ public class RestaurantManagement {
 
         OrderRepository orderRepository = new OrderRepository();
 
+        InvoiceRepository invoiceRepository = new InvoiceRepository();
+
+        PaymentRepository paymentRepository = new PaymentRepository();
+
         // ==========================
         // Service Layer
         // ==========================
@@ -54,12 +69,16 @@ public class RestaurantManagement {
         OrderService orderService = new OrderService(orderRepository ,tableService, inventoryService);
 
         OrderDetailService orderDetailService = new OrderDetailService( inventoryService, orderService );
+
+        InvoiceService invoiceService = new InvoiceService(invoiceRepository, orderService);
+
+        PaymentService paymentService = new PaymentService(paymentRepository, invoiceService);
                 
         // ==========================
         // UI Layer
         // ==========================
 
-        Router router = new Router(tableService, orderService, orderDetailService, menuService);
+        Router router = new Router(tableService, orderService, orderDetailService, menuService, invoiceService, paymentService);
 
         LoginUI loginUI = new LoginUI(authService, router);
 

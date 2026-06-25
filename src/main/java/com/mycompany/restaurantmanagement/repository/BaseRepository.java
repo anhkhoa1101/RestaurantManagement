@@ -109,9 +109,10 @@ public abstract class BaseRepository<T, ID> implements IRepository<T, ID> {
         }
 
     }
-
+    //Using for loadFromFile
     protected abstract T parseLine(String line);
 
+    //Using for saveToFile
     protected abstract String toLine(T entity);
 
 }

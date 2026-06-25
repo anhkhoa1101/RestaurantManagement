@@ -3,108 +3,279 @@ package com.mycompany.restaurantmanagement.ui;
 import com.mycompany.restaurantmanagement.model.Invoice;
 import com.mycompany.restaurantmanagement.model.Payment;
 import com.mycompany.restaurantmanagement.model.PaymentMethod;
+
 import com.mycompany.restaurantmanagement.service.InvoiceService;
 import com.mycompany.restaurantmanagement.service.PaymentService;
+
 import java.util.Scanner;
 
-//THUỘC TÍNH
 public class PaymentUI {
+
     private InvoiceService invoiceService;
+
     private PaymentService paymentService;
+
     private Scanner scanner;
 
-    // CONSTRUCTOR
-    public PaymentUI() {
-        this.invoiceService = new InvoiceService();
-        this.paymentService = new PaymentService();
-        this.scanner = new Scanner(System.in);
+    public PaymentUI(
+            InvoiceService invoiceService,
+            PaymentService paymentService
+    ) {
+
+        this.invoiceService =
+                invoiceService;
+
+        this.paymentService =
+                paymentService;
+
+        this.scanner =
+                new Scanner(System.in);
+
     }
 
-    // PHƯƠNG THỨC
-    // 1. Xử lý thanh toán
+    /*
+     * Thanh toán hóa đơn
+     */
     public void processCheckout() {
-        System.out.println("\n===== THANH TOÁN =====");
 
-        System.out.print("Nhập mã đơn hàng: ");
-        String orderId = scanner.nextLine();
+        try {
 
-        Invoice invoice = invoiceService.getInvoiceById(orderId);
-        if (invoice == null) {
-            System.out.println("Không tìm thấy đơn hàng: " + orderId);
-            return;
-        }
+            System.out.println(
+                    "\n===== THANH TOÁN ====="
+            );
 
-        invoice.printInvoice();
+            System.out.print(
+                    "Nhập mã hóa đơn: "
+            );
 
-        System.out.println("\nChọn phương thức thanh toán:");
-        System.out.println("1. Tiền mặt (CASH)");
-        System.out.println("2. Thẻ ngân hàng (CARD)");
-        System.out.println("3. Chuyển khoản (BANK_TRANSFER)");
-        System.out.print("Lựa chọn: ");
-        int methodChoice = scanner.nextInt();
-        scanner.nextLine();
+            String invoiceId =
+                    scanner.nextLine();
 
-        PaymentMethod method;
-        switch (methodChoice) {
-            case 1:
-                method = PaymentMethod.CARD;
-                break;
-            case 2:
-                method = PaymentMethod.CARD;
-                break;
-            case 3:
-                method = PaymentMethod.BANK_TRANSFER;
-                break;
-            default:
-                System.out.println("Lựa chọn không hợp lệ!");
+            Invoice invoice =
+                    invoiceService.getById(
+                            invoiceId
+                    );
+
+            if (
+                    invoice == null
+            ) {
+
+                System.out.println(
+                        "Không tìm thấy hóa đơn"
+                );
+
                 return;
+
+            }
+
+            invoice.printInvoice();
+
+            PaymentMethod method =
+                    choosePaymentMethod();
+
+            if (
+                    method == null
+            ) {
+
+                return;
+
+            }
+
+            Payment payment =
+                    paymentService.createPayment(
+
+                            invoice.getInvoiceId(),
+
+                            invoice.getTotalAmount(),
+
+                            method
+
+                    );
+
+            boolean success =
+                    paymentService
+                            .confirmPayment(
+                                    payment.getPaymentId()
+                            );
+
+            if (
+                    success
+            ) {
+
+                invoiceService.markAsPaid(
+
+                        invoice.getInvoiceId(),
+
+                        payment
+
+                );
+
+                System.out.println(
+                        "\nThanh toán thành công."
+                );
+
+            } else {
+
+                System.out.println(
+                        "\nThanh toán thất bại."
+                );
+
+            }
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    e.getMessage()
+            );
+
         }
 
-        Payment payment = paymentService.createPayment(
-                invoice.getInvoiceId(),
-                invoice.getTotalAmount(),
-                method);
-
-        boolean success = paymentService.confirmPayment(payment.getPaymentId());
-        if (success) {
-            invoiceService.markAsPaid(invoice.getInvoiceId(), payment);
-            System.out.println("Thanh toán thành công!");
-        } else {
-            System.out.println("Thanh toán thất bại!");
-        }
     }
 
-    // 2. Xem hóa đơn
+    /*
+     * Chọn phương thức
+     */
+    private PaymentMethod choosePaymentMethod() {
+
+        System.out.println(
+                "\n===== CHỌN PHƯƠNG THỨC ====="
+        );
+
+        System.out.println(
+                "1. CASH"
+        );
+
+        System.out.println(
+                "2. CARD"
+        );
+
+        System.out.println(
+                "3. BANK_TRANSFER"
+        );
+
+        System.out.print(
+                "Lựa chọn: "
+        );
+
+        int choice =
+                Integer.parseInt(
+                        scanner.nextLine()
+                );
+
+        switch (choice) {
+
+            case 1:
+                return PaymentMethod.CASH;
+
+            case 2:
+                return PaymentMethod.CARD;
+
+            case 3:
+                return PaymentMethod.BANK_TRANSFER;
+
+            default:
+
+                System.out.println(
+                        "Lựa chọn không hợp lệ"
+                );
+
+                return null;
+
+        }
+
+    }
+
+    /*
+     * Xem hóa đơn
+     */
     public void viewInvoice() {
-        System.out.println("\n===== XEM HÓA ĐƠN =====");
-        System.out.print("Nhập mã hóa đơn: ");
-        String invoiceId = scanner.nextLine();
-        invoiceService.printInvoice(invoiceId);
+
+        try {
+
+            System.out.print(
+                    "Nhập mã hóa đơn: "
+            );
+
+            String id =
+                    scanner.nextLine();
+
+            invoiceService
+                    .printInvoice(
+                            id
+                    );
+
+        }
+
+        catch (Exception e) {
+
+            System.out.println(
+                    e.getMessage()
+            );
+
+        }
+
     }
 
-    // 3. Menu chính
+    /*
+     * Menu
+     */
     public void run() {
-        int choice;
-        do {
-            System.out.println("\n===== QUẢN LÝ THANH TOÁN =====");
-            System.out.println("1. Thanh toán đơn hàng");
-            System.out.println("2. Xem hóa đơn");
-            System.out.println("0. Thoát");
-            System.out.print("Lựa chọn: ");
-            choice = scanner.nextInt();
-            scanner.nextLine();
+
+        while (true) {
+
+            System.out.println(
+                    "\n===== PAYMENT MENU ====="
+            );
+
+            System.out.println(
+                    "1. Thanh toán"
+            );
+
+            System.out.println(
+                    "2. Xem hóa đơn"
+            );
+
+            System.out.println(
+                    "0. Thoát"
+            );
+
+            System.out.print(
+                    "Chọn: "
+            );
+
+            int choice =
+                    Integer.parseInt(
+                            scanner.nextLine()
+                    );
 
             switch (choice) {
+
                 case 1:
+
                     processCheckout();
+
                     break;
+
                 case 2:
+
                     viewInvoice();
+
                     break;
+
                 case 0:
-                    System.out.println("Thoát module thanh toán.");
-                    break;
+
+                    return;
+
+                default:
+
+                    System.out.println(
+                            "Không hợp lệ"
+                    );
+
             }
-        } while (choice != 0);
+
+        }
+
     }
+
 }

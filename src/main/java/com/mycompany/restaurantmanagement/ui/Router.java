@@ -3,9 +3,11 @@ package com.mycompany.restaurantmanagement.ui;
 import com.mycompany.restaurantmanagement.model.Manager;
 import com.mycompany.restaurantmanagement.model.User;
 
+import com.mycompany.restaurantmanagement.service.InvoiceService;
 import com.mycompany.restaurantmanagement.service.MenuService;
 import com.mycompany.restaurantmanagement.service.OrderDetailService;
 import com.mycompany.restaurantmanagement.service.OrderService;
+import com.mycompany.restaurantmanagement.service.PaymentService;
 import com.mycompany.restaurantmanagement.service.TableService;
 
 public class Router {
@@ -18,12 +20,26 @@ public class Router {
 
     private MenuService menuService;
 
+    private InvoiceService invoiceService;
+
+    private PaymentService paymentService;
+
     public Router(
+
             TableService tableService,
+
             OrderService orderService,
+
             OrderDetailService orderDetailService,
-            MenuService menuService
+
+            MenuService menuService,
+
+            InvoiceService invoiceService,
+
+            PaymentService paymentService
+
     ) {
+
         this.tableService = tableService;
 
         this.orderService = orderService;
@@ -31,29 +47,65 @@ public class Router {
         this.orderDetailService = orderDetailService;
 
         this.menuService = menuService;
+
+        this.invoiceService = invoiceService;
+
+        this.paymentService = paymentService;
+
     }
 
     public void route(User user) {
 
         if (user == null) {
+
             System.out.println("User không tồn tại.");
+
             return;
+
         }
 
         switch (user.getRole()) {
+
             case MANAGER:
-                new UIManager((Manager) user).show();
+
+                UIManager managerUI = new UIManager((Manager) user);
+
+                managerUI.show();
+
+                break;
+
+            case WAREHOUSE:
                 break;
 
             case EMPLOYEE:
-                new OrderUI(tableService, orderService, orderDetailService).run();
+
+                OrderUI orderUI = new OrderUI(
+
+                        tableService,
+
+                        orderService,
+
+                        orderDetailService
+
+                );
+                orderUI.run();
+
                 break;
 
             case CASHIER:
-                new PaymentUI().processCheckout();
+
+                PaymentUI paymentUI = new PaymentUI( invoiceService, paymentService);
+
+                paymentUI.run();
+
                 break;
+
             default:
+
                 System.out.println("Role không hợp lệ.");
+
         }
+
     }
+
 }

@@ -1,104 +1,120 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.restaurantmanagement.service;
 
-/**
- *
- * @author khoa0
- */
 import com.mycompany.restaurantmanagement.model.Payment;
 import com.mycompany.restaurantmanagement.model.PaymentMethod;
 import com.mycompany.restaurantmanagement.model.PaymentStatus;
+
 import com.mycompany.restaurantmanagement.repository.PaymentRepository;
+
 import java.util.Date;
 import java.util.List;
-   
-// ===== THUỘC TÍNH =====
-public class PaymentService {
-    private PaymentRepository paymentRepository;
-    private InvoiceService    invoiceService;
 
-// ===== CONSTRUCTOR =====  
-public PaymentService() {
-    this.paymentRepository = new PaymentRepository();
-    this.invoiceService = new InvoiceService();
-}  
+public class PaymentService extends BaseService<Payment, String> {
 
-public PaymentService(PaymentRepository paymentRepository, InvoiceService invoiceService) {
-    this.paymentRepository = paymentRepository;
-    this.invoiceService = invoiceService;       
-}
+    private final PaymentRepository paymentRepository;
 
-// ===== PHƯƠNG THỨC =====
+    private final InvoiceService invoiceService;
 
-//1. Tọa giao dịch thanh toán mới
-public Payment createPayment(String invoiceId, double amount, PaymentMethod method) {
+    public PaymentService(PaymentRepository paymentRepository, InvoiceService invoiceService) {
 
-    // tạo mã giao dịch tự động 
-    String paymentId = "PAY" + System.currentTimeMillis(); 
+        super(paymentRepository);
 
-     // xử lý theo từng loại enum
-        switch (method) {
-            case CASH:
-                System.out.println("Thanh toán tiền mặt: " + amount + " VND");
-                break;
-            case CARD:
-                System.out.println("Thanh toán thẻ ngân hàng: " + amount + " VND");
-                break;
-            case BANK_TRANSFER:
-                System.out.println("Chuyển khoản ngân hàng: " + amount + " VND");
-                break;
-            default:
-                System.out.println("Phương thức không hợp lệ!");
+        this.paymentRepository = paymentRepository;
+
+        this.invoiceService = invoiceService;
+
+    }
+
+    public Payment createPayment(String invoiceId, double amount, PaymentMethod method) {
+
+        if (invoiceId == null || invoiceId.trim().isEmpty()) {
+
+            throw new IllegalArgumentException("InvoiceId không hợp lệ");
+
         }
 
-    // tạo đối tượng Payment mới
-    Payment payment = new Payment(paymentId, invoiceId, amount, new Date(), method);    
+        if (amount <= 0) {
 
-    // lưu giao dịch vào repository
-    payment.setStatus(PaymentStatus.PENDING);
-    paymentRepository.save(payment);
-    System.out.println("Đã tạo giao dịch thanh toán: " + paymentId);
-    return payment;
-}
+            throw new IllegalArgumentException("Số tiền phải > 0");
 
-//2. Xác nhận thanh toán
-public boolean confirmPayment(String paymentId) {
-    Payment payment = paymentRepository.findById(paymentId);
-    if (payment == null) {
-        System.out.println("Không tìm thấy giao dịch: " + paymentId);
-        return false;
+        }
+
+        String paymentId = "PAY" + System.currentTimeMillis();
+
+        Payment payment = new Payment(
+
+                paymentId,
+
+                invoiceId,
+
+                amount,
+
+                new Date(),
+
+                method
+
+        );
+
+        payment.setStatus(PaymentStatus.PENDING);
+
+        add(payment);
+
+        return payment;
+
     }
 
-    // xử lý thanh toán
-    boolean success = payment.processPayment();
-    if (success) {
-        payment.setStatus(PaymentStatus.SUCCESS);
-        paymentRepository.save(payment);
-        System.out.println("Xác nhận thanh toán thành công: " + paymentId);
-    } else {
-        System.out.println("Xác nhận thanh toán thất bại: " + paymentId);
+    public boolean confirmPayment(String paymentId) {
+
+        Payment payment = getById(paymentId);
+
+        if (payment == null) {
+
+            throw new IllegalArgumentException("Không tìm thấy giao dịch");
+
+        }
+
+        boolean success = payment.processPayment();
+
+        if (success) {
+
+            payment.setStatus(PaymentStatus.SUCCESS);
+
+            add(payment);
+
+        }
+
+        return success;
+
     }
-    return success;
-}
-    
-//3. Hủy thanh toán
-public void cancelPayment(String paymentId) {
-    Payment payment = paymentRepository.findById(paymentId);
-    if (payment != null ) {
+
+    public void cancelPayment(String paymentId) {
+
+        Payment payment = getById(paymentId);
+
+        if (payment == null) {
+
+            throw new IllegalArgumentException("Không tìm thấy giao dịch");
+
+        }
+
         payment.cancelPayment();
-        payment.setStatus(PaymentStatus.CANCELLED);
-        paymentRepository.save(payment);   // cập nhật lại trạng thái
-        System.out.println("Hủy thanh toán thành công: " + paymentId);
-    } else {
-        System.out.println("Không tìm thấy giao dịch: " + paymentId);
-    }
-}
 
-//4. Lấy lịch sử giao dịch thanh toán
-public List<Payment> getPaymentHistory() {
-    return paymentRepository.findAll();
-   }
+        payment.setStatus(PaymentStatus.CANCELLED);
+
+        add(payment);
+
+    }
+
+    public Payment getByInvoiceId(String invoiceId) {
+
+        return paymentRepository.findByInvoiceId(invoiceId);
+
+    }
+
+    public List<Payment> getPaymentHistory() {
+
+        return getAll();
+
+    }
+
 }
