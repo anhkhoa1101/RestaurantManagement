@@ -20,6 +20,8 @@ import com.mycompany.restaurantmanagement.service.*;
 import com.mycompany.restaurantmanagement.ui.LoginUI;
 import com.mycompany.restaurantmanagement.ui.Router;
 
+
+import java.util.Scanner;
 public class RestaurantManagement {
 
     public static void main(String[] args) {
@@ -46,6 +48,8 @@ public class RestaurantManagement {
 
         PaymentRepository paymentRepository = new PaymentRepository();
 
+        Scanner scanner = new Scanner(System.in);
+
         // ==========================
         // Service Layer
         // ==========================
@@ -70,7 +74,7 @@ public class RestaurantManagement {
         // UI Layer
         // ==========================
 
-        Router router = new Router(menuService, inventoryService, categoryService, tableService, orderService, orderDetailService, invoiceService, paymentService);
+        Router router = new Router(scanner, menuService, inventoryService, categoryService, tableService, orderService, orderDetailService, invoiceService, paymentService);
 
         LoginUI loginUI = new LoginUI(authService, router);
 

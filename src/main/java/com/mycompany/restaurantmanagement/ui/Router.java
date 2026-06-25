@@ -32,9 +32,13 @@ public class Router {
 
     private PaymentService paymentService;
 
+    private Scanner scanner;
+
     public Router(
 
-             MenuService menuService,
+            Scanner scanner,
+
+            MenuService menuService,
 
             InventoryService inventoryService,
 
@@ -51,6 +55,14 @@ public class Router {
             PaymentService paymentService
 
     ) {
+
+        this.scanner = scanner;
+
+        this.menuService = menuService;
+
+        this.inventoryService = inventoryService;
+
+        this.categoryService = categoryService;
 
         this.tableService = tableService;
 
@@ -87,7 +99,8 @@ public class Router {
                 break;
 
             case WAREHOUSE:
-                InventoryUI inventoryUI = new InventoryUI();
+                InventoryUI inventoryUI = new InventoryUI(scanner, categoryService, menuService, inventoryService);
+                inventoryUI.show();
                 break;
 
             case EMPLOYEE:

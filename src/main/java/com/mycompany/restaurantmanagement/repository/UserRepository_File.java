@@ -45,6 +45,7 @@ public class UserRepository_File implements UserRepository {
                                   String fullName, String email) {
         switch (role) {
             case MANAGER:  return new Manager(id, username, password, fullName, email);
+            case WAREHOUSE: return new WarehouseManager(id, username, password, fullName, email);
             case EMPLOYEE: return new Employee(id, username, password, fullName, email);
             case CASHIER:  return new Cashier(id, username, password, fullName, email);
             default: throw new IllegalArgumentException("Role không hợp lệ: " + role);
