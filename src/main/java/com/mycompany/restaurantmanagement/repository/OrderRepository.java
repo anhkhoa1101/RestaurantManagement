@@ -56,7 +56,7 @@ public class OrderRepository extends BaseRepository<Order, String> {
     @Override
     protected Order parseLine(String line) {
 
-        String[] d = line.split("|");
+        String[] d = line.split("\\|");
 
         String orderId = d[0];
 
@@ -127,7 +127,7 @@ public class OrderRepository extends BaseRepository<Order, String> {
 
             while ((line = br.readLine()) != null) {
 
-                String[] d = line.split("|");
+                String[] d = line.split("\\|");
 
                 if (!d[0].equals(order.getOrderId())) {
 

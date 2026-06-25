@@ -45,34 +45,40 @@ public class InvoiceRepository extends BaseRepository<Invoice, String> {
 
         Invoice invoice = new Invoice();
 
+        // 0. invoiceId
         invoice.setInvoiceId(d[0]);
 
-        invoice.setTotalAmount(Double.parseDouble(d[1]));
+        // 1. orderId
+        Order order = new Order(d[1], null);
+        invoice.setOrder(order);
 
-        invoice.setIssueDate(new Date(Long.parseLong(d[2])));
+        // 2. totalAmount
+        invoice.setTotalAmount(Double.parseDouble(d[2]));
 
-        invoice.setStatus(InvoiceStatus.valueOf(d[3]));
-
-        if (d.length > 4 && !d[4].equals("null")) {
-
-            invoice.setOrder(new Order(d[4], null));
-
+        // 3. issueDate (string → Date đơn giản hóa)
+        // Nếu bạn không dùng timestamp thì nên parse kiểu này:
+        try {
+            invoice.setIssueDate(
+                    new java.text.SimpleDateFormat("yyyy-MM-dd").parse(d[3])
+            );
+        } catch (Exception e) {
+            invoice.setIssueDate(new Date());
         }
 
-        return invoice;
+        // 4. status
+        invoice.setStatus(InvoiceStatus.valueOf(d[4]));
 
+        return invoice;
     }
 
     @Override
     protected String toLine(Invoice invoice) {
 
-        return
-                invoice.getInvoiceId() +
-                        "|" + invoice.getTotalAmount() +
-                        "|" + invoice.getIssueDate().getTime() +
-                        "|" + invoice.getStatus() + "|" +
-                        (invoice.getOrder() == null ? "null" : invoice.getOrder().getOrderId());
-
+        return invoice.getInvoiceId()
+                + "|" + (invoice.getOrder() != null ? invoice.getOrder().getOrderId() : "null")
+                + "|" + invoice.getTotalAmount()
+                + "|" + new java.text.SimpleDateFormat("yyyy-MM-dd").format(invoice.getIssueDate())
+                + "|" + invoice.getStatus();
     }
 
     public Invoice findByOrderId(String orderId) {
