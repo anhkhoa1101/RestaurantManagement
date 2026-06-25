@@ -69,7 +69,7 @@ public class TableRepository extends BaseRepository<Table, Integer> {
     @Override
     protected Table parseLine(String line) {
 
-        String[] d = line.split(",");
+        String[] d = line.split("|");
 
         int id = Integer.parseInt(d[0]);
 
@@ -86,7 +86,7 @@ public class TableRepository extends BaseRepository<Table, Integer> {
     @Override
     protected String toLine(Table table) {
 
-        return table.getTableId() + "," + table.getTableName() + "," + table.getCapacity() + "," + table.isOccupied();
+        return table.getTableId() + "|" + table.getTableName() + "|" + table.getCapacity() + "|" + table.isOccupied();
 
     }
 
