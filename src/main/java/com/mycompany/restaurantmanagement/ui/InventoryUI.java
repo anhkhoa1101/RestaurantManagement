@@ -8,7 +8,6 @@ import com.mycompany.restaurantmanagement.service.InventoryService;
 import com.mycompany.restaurantmanagement.service.MenuService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class InventoryUI {
@@ -28,8 +27,7 @@ public class InventoryUI {
         this.inventoryService = inventoryService;
     }
 
-    // ─── Menu chính ───────────────────────────────────────────────────────────
-
+    // ─── Menu chính ───────────────────────────────────────────
     public void show() {
         boolean running = true;
         while (running) {
@@ -37,197 +35,186 @@ public class InventoryUI {
             System.out.println("1. Add menu item");
             System.out.println("2. Edit menu item");
             System.out.println("3. Delete menu item");
-            System.out.println("4. Search menu items");
-            System.out.println("5. View all menu items");
-            System.out.println("6. Check stock");
-            System.out.println("7. Restock item");
-            System.out.println("0. Back");
-            System.out.print("Select: ");
+            System.out.println("4. View all menu items");
+            System.out.println("5. Check stock");
+            System.out.println("6. Restock item");
+            System.out.println("7. View low stock items");
+            System.out.println("8. Manage categories");
+            System.out.println("0. Back to main menu");
 
-            switch (scanner.nextLine().trim()) {
-                case "1":
+            int choice = readInt("Your choice: ");
+            switch (choice) {
+                case 1:
                     addMenuItem();
                     break;
-                case "2":
+                case 2:
                     editMenuItem();
                     break;
-                case "3":
+                case 3:
                     deleteMenuItem();
                     break;
-                case "4":
-                    searchMenuItem();
-                    break;
-                case "5":
+                case 4:
                     viewAllMenuItems();
                     break;
-                case "6":
+                case 5:
                     checkStock();
                     break;
-                case "7":
+                case 6:
                     restockItem();
                     break;
-                case "0":
+                case 7:
+                    viewLowStockItems();
+                    break;
+                case 8:
+                    manageCategories();
+                    break;
+                case 0:
                     running = false;
                     break;
                 default:
-                    System.out.println("Invalid option. Please try again.");
+                    System.out.println("Invalid choice. Try again.");
+                    break;
             }
         }
     }
 
-    // ─── Helper: đọc số nguyên an toàn ──────────────────────────────────────
+    // ─── Menu con quản lý danh mục ─────────────────────────────
+    private void manageCategories() {
+        boolean inLoop = true;
+        while (inLoop) {
+            System.out.println("\n--- Category Management ---");
+            System.out.println("1. Add new category");
+            System.out.println("2. Edit category");
+            System.out.println("3. View all categories");
+            System.out.println("0. Back");
 
-    private int readInt(String prompt) throws NumberFormatException {
-        System.out.print(prompt);
-        return Integer.parseInt(scanner.nextLine().trim());
+            int choice = readInt("Your choice: ");
+            switch (choice) {
+                case 1:
+                    addCategory();
+                    break;
+                case 2:
+                    editCategory();
+                    break;
+                case 3:
+                    viewAllCategories();
+                    break;
+                case 0:
+                    inLoop = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+                    break;
+            }
+        }
     }
 
-    private double readDouble(String prompt) throws NumberFormatException {
-        System.out.print(prompt);
-        return Double.parseDouble(scanner.nextLine().trim());
+    // =========================================================================
+    // ─── LOGIC XỬ LÝ CATEGORY ────────────────────────────────────────────────
+    // =========================================================================
+
+    private void addCategory() {
+        System.out.println("\n-- Add New Category --");
+        String name = readString("Enter category name: ");
+        String desc = readString("Enter description: ");
+        Category c = categoryService.addCategory(name, desc);
+        System.out.println("Category added successfully: " + c);
     }
 
-    // ─── Add menu item ────────────────────────────────────────────────────────
+    private void editCategory() {
+        System.out.println("\n-- Edit Category --");
+        viewAllCategories();
+        int id = readInt("Enter category ID to edit: ");
+        String name = readString("Enter new name: ");
+        String desc = readString("Enter new description: ");
+
+        if (categoryService.updateCategory(id, name, desc)) {
+            System.out.println("Category updated successfully.");
+        } else {
+            System.out.println("Category not found.");
+        }
+    }
+
+    private void viewAllCategories() {
+        System.out.println("\n-- List of Categories --");
+        List<Category> list = categoryService.getAll();
+        if (list.isEmpty()) {
+            System.out.println("No categories available.");
+        } else {
+            for (Category c : list) {
+                System.out.println(c);
+            }
+        }
+    }
+
+    // =========================================================================
+    // ─── LOGIC XỬ LÝ MENU ITEM ───────────────────────────────────────────────
+    // =========================================================================
 
     private void addMenuItem() {
         System.out.println("\n-- Add Menu Item --");
+        viewAllCategories();
+        int catId = readInt("Select category ID: ");
 
-        List<Category> categories = categoryService.getAllCategories();
-        if (categories.isEmpty()) {
-            System.out.println("No categories available. Please add a category first.");
-            return;
-        }
-        System.out.println("Available categories:");
-        for (Category c : categories) {
-            System.out.printf("  [%d] %s%n", c.getId(), c.getName());
-        }
-
-        int categoryId;
-        try {
-            categoryId = readInt("Category ID: ");
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid ID.");
+        Category category = categoryService.getById(catId);
+        if (category == null) {
+            System.out.println("Invalid category ID.");
             return;
         }
 
-        Optional<Category> category = categoryService.getCategoryById(categoryId);
-        if (!category.isPresent()) {
-            System.out.println("Category not found.");
-            return;
-        }
-
-        System.out.print("Item name: ");
-        String name = scanner.nextLine().trim();
-        System.out.print("Description: ");
-        String description = scanner.nextLine().trim();
-
+        String name = readString("Enter item name: ");
+        String desc = readString("Enter description: ");
         double price;
         try {
-            price = readDouble("Price (VND): ");
+            price = Double.parseDouble(readString("Enter price: "));
         } catch (NumberFormatException e) {
-            System.out.println("Invalid price.");
+            System.out.println("Invalid price format.");
             return;
         }
 
-        MenuItem item = menuService.addMenuItem(name, description, price, category.get());
+        MenuItem item = menuService.addMenuItem(name, desc, price, category);
+        System.out.println("Menu item added: " + item);
 
-        int quantity, minQuantity;
-        try {
-            quantity = readInt("Initial stock quantity: ");
-            minQuantity = readInt("Minimum stock threshold: ");
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid number.");
-            return;
-        }
-
-        System.out.print("Unit (e.g. kg, litre, phan): ");
-        String unit = scanner.nextLine().trim();
-
-        inventoryService.addInventoryItem(item, quantity, minQuantity, unit);
-        System.out.println("Menu item added successfully: " + item);
+        int initQty = readInt("Enter initial stock quantity: ");
+        int minQty = readInt("Enter alert minimum quantity: ");
+        String unit = readString("Enter unit (e.g., portion, glass, bowl): ");
+        inventoryService.addInventoryItem(item, initQty, minQty, unit);
+        System.out.println("Inventory record created for this item.");
     }
-
-    // ─── Edit menu item ───────────────────────────────────────────────────────
 
     private void editMenuItem() {
         System.out.println("\n-- Edit Menu Item --");
         viewAllMenuItems();
-
-        int id;
-        try {
-            id = readInt("Enter item ID to edit: ");
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid ID.");
-            return;
-        }
-
-        System.out.print("New name: ");
-        String name = scanner.nextLine().trim();
-
+        int id = readInt("Enter item ID to edit: ");
+        String name = readString("Enter new name: ");
         double price;
         try {
-            price = readDouble("New price: ");
+            price = Double.parseDouble(readString("Enter new price: "));
         } catch (NumberFormatException e) {
             System.out.println("Invalid price.");
             return;
         }
 
-        System.out.print("Confirm update? (Y/N): ");
-        if (!scanner.nextLine().trim().equalsIgnoreCase("Y")) {
-            System.out.println("Update cancelled.");
-            return;
+        if (menuService.updateMenuItem(id, name, price)) {
+            System.out.println("Menu item updated successfully.");
+        } else {
+            System.out.println("Menu item not found.");
         }
-
-        System.out.println(menuService.updateMenuItem(id, name, price)
-                ? "Item updated successfully."
-                : "Item not found.");
     }
-
-    // ─── Delete menu item ─────────────────────────────────────────────────────
 
     private void deleteMenuItem() {
         System.out.println("\n-- Delete Menu Item --");
         viewAllMenuItems();
-
-        int id;
-        try {
-            id = readInt("Enter item ID to delete: ");
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid ID.");
-            return;
-        }
-
-        System.out.print("Confirm delete? (Y/N): ");
-        if (!scanner.nextLine().trim().equalsIgnoreCase("Y")) {
-            System.out.println("Delete cancelled.");
-            return;
-        }
-
-        System.out.println(menuService.deleteMenuItem(id)
-                ? "Item deleted successfully."
-                : "Item not found.");
-    }
-
-    // ─── Search menu items ────────────────────────────────────────────────────
-
-    private void searchMenuItem() {
-        System.out.println("\n-- Search Menu Items --");
-        System.out.print("Enter keyword: ");
-        String keyword = scanner.nextLine().trim();
-
-        List<MenuItem> results = menuService.searchMenuItems(keyword);
-        if (results.isEmpty()) {
-            System.out.println("No items found matching '" + keyword + "'.");
+        int id = readInt("Enter item ID to delete: ");
+        if (menuService.deleteMenuItem(id)) {
+            System.out.println("Menu item deleted successfully.");
         } else {
-            for (MenuItem m : results)
-                System.out.println(m);
+            System.out.println("Menu item not found.");
         }
     }
-
-    // ─── View all menu items ──────────────────────────────────────────────────
 
     private void viewAllMenuItems() {
-        System.out.println("\n-- All Menu Items --");
+        System.out.println("\n-- Menu Items --");
         List<MenuItem> items = menuService.getAllMenuItems();
         if (items.isEmpty()) {
             System.out.println("No menu items available.");
@@ -237,11 +224,13 @@ public class InventoryUI {
         }
     }
 
-    // ─── Check stock ──────────────────────────────────────────────────────────
+    // =========================================================================
+    // ─── LOGIC XỬ LÝ INVENTORY ───────────────────────────────────────────────
+    // =========================================================================
 
     private void checkStock() {
         System.out.println("\n-- Inventory Stock --");
-        List<InventoryItem> inventory = inventoryService.getAllInventoryItems();
+        List<InventoryItem> inventory = inventoryService.getAll();
         if (inventory.isEmpty()) {
             System.out.println("No inventory records found.");
             return;
@@ -253,8 +242,6 @@ public class InventoryUI {
             System.out.printf("%-15s %s%n", status, i);
         }
     }
-
-    // ─── Restock item ─────────────────────────────────────────────────────────
 
     private void restockItem() {
         System.out.println("\n-- Restock Item --");
@@ -269,8 +256,42 @@ public class InventoryUI {
             return;
         }
 
-        System.out.println(inventoryService.restock(id, qty)
-                ? "Restocked successfully."
-                : "Inventory item not found.");
+        if (inventoryService.restock(id, qty)) {
+            System.out.println("Restocked successfully.");
+        } else {
+            System.out.println("Inventory record not found.");
+        }
+    }
+
+    private void viewLowStockItems() {
+        System.out.println("\n-- Low Stock Alert items --");
+        List<InventoryItem> lowStock = inventoryService.getLowStockItems();
+        if (lowStock.isEmpty()) {
+            System.out.println("All items are well stocked!");
+            return;
+        }
+        for (InventoryItem i : lowStock) {
+            System.out.println(i);
+        }
+    }
+
+    // =========================================================================
+    // ─── HELPER METHODS ──────────────────────────────────────────────────────
+    // =========================================================================
+
+    private String readString(String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine().trim();
+    }
+
+    private int readInt(String prompt) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                return Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid integer.");
+            }
+        }
     }
 }

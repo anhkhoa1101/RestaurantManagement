@@ -2,46 +2,32 @@ package com.mycompany.restaurantmanagement.service;
 
 import com.mycompany.restaurantmanagement.model.Category;
 import com.mycompany.restaurantmanagement.repository.CategoryRepository;
-import java.util.List;
-import java.util.Optional;
 
-public class CategoryService {
+public class CategoryService extends BaseService<Category, Integer> {
 
-    private final CategoryRepository repository;
-
+    private final CategoryRepository categoryRepository;
+    //───Constructor──────────────────────────────────────────────────────────────
     public CategoryService(CategoryRepository repository) {
-        this.repository = repository;
+        super(repository);
+        this.categoryRepository = repository;
     }
 
-    // Tạo mới một danh mục
+    // thêm danh mục mới
     public Category addCategory(String name, String description) {
-        Category category = new Category(repository.nextId(), name, description);
-        repository.save(category);
+        Category category = new Category(categoryRepository.nextId(), name, description);
+        add(category); // Gọi hàm add(T entity) từ BaseService để lưu và ghi file
         return category;
     }
 
-    // Cập nhật thông tin danh mục
-    public boolean updateCategory(int id, String newName, String newDescription) {
-        Optional<Category> found = repository.findById(id);
-        if (!found.isPresent())
+    // tự động tạo ID mới và lưu vào file
+    public boolean updateCategory(Integer id, String newName, String newDescription) {
+        Category found = getById(id); // Gọi hàm getById(ID id) từ BaseService
+        if (found == null) {
             return false;
-        found.get().setName(newName);
-        found.get().setDescription(newDescription);
+        }
+        found.setName(newName);
+        found.setDescription(newDescription);
+        update(found); // Gọi hàm update(T entity) từ BaseService để đồng bộ xuống file
         return true;
-    }
-
-    // Xóa một danh mục
-    public boolean deleteCategory(int id) {
-        return repository.deleteById(id);
-    }
-
-    // Lấy tất cả danh mục
-    public List<Category> getAllCategories() {
-        return repository.findAll();
-    }
-
-    // Lấy thông tin một danh mục theo ID
-    public Optional<Category> getCategoryById(int id) {
-        return repository.findById(id);
     }
 }
