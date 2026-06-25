@@ -69,17 +69,41 @@ public class TableRepository extends BaseRepository<Table, Integer> {
     @Override
     protected Table parseLine(String line) {
 
-        String[] d = line.split("|");
+        String[] d = line.split("\\|");
 
-        int id = Integer.parseInt(d[0]);
+        // FORMAT CŨ:
+        // id|name|occupied
+        if (d.length == 3) {
 
-        String name = d[1];
+            return new Table(
 
-        int capacity = Integer.parseInt(d[2]);
+                    Integer.parseInt(d[0].trim()),
 
-        boolean occupied = Boolean.parseBoolean(d[3]);
+                    d[1].trim(),
 
-        return new Table(id, name, capacity, occupied);
+                    4, // capacity mặc định
+
+                    Boolean.parseBoolean(d[2].trim()));
+
+        }
+
+        // FORMAT MỚI:
+        // id|name|capacity|occupied
+        if (d.length == 4) {
+
+            return new Table(
+
+                    Integer.parseInt(d[0].trim()),
+
+                    d[1].trim(),
+
+                    Integer.parseInt(d[2].trim()),
+
+                    Boolean.parseBoolean(d[3].trim()));
+
+        }
+
+        throw new IllegalArgumentException("Sai định dạng tables.txt: " + line);
 
     }
 
