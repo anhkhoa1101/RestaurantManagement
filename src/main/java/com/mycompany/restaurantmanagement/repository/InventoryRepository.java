@@ -11,12 +11,13 @@ public class InventoryRepository extends BaseRepository<InventoryItem, Integer> 
     private final MenuItemRepository menuItemRepo;
     private int nextId = 1;
 
-    private List<Integer> tempMenuItemIds = null;
+    // [FIX] Không khởi tạo ở đây — dùng lazy init trong parseLine().
+    private List<Integer> tempMenuItemIds;
 
     //───Constructor──────────────────────────────────────────────────────────────
     public InventoryRepository(MenuItemRepository menuItemRepo) {
-        super(AppConfig.INVENTORY_FILE_PATH);
-        this.menuItemRepo = menuItemRepo;  
+        super(AppConfig.INVENTORY_FILE_PATH); // loadFromFile() → parseLine()
+        this.menuItemRepo = menuItemRepo;
         bindMenuItems();
         calculateNextId();
     }
@@ -40,7 +41,8 @@ public class InventoryRepository extends BaseRepository<InventoryItem, Integer> 
     //───Find by MenuItem ID──────────────────────────────────────────────────────
     public InventoryItem findByMenuItemId(int menuItemId) {
         for (InventoryItem item : data) {
-            if (item.getMenuItem() != null && item.getMenuItem().getItemId() == menuItemId) {
+            if (item != null && item.getMenuItem() != null
+                    && item.getMenuItem().getItemId() == menuItemId) {
                 return item;
             }
         }
@@ -63,15 +65,18 @@ public class InventoryRepository extends BaseRepository<InventoryItem, Integer> 
         this.nextId = maxId + 1;
     }
 
-    //───Bind Menu Items ────────────────────────────────────────────────────────
+    //───Bind Menu Items──────────────────────────────────────────────────────────
     private void bindMenuItems() {
         if (menuItemRepo == null || tempMenuItemIds == null) return;
+        if (tempMenuItemIds.isEmpty()) return;
 
         for (int i = 0; i < data.size(); i++) {
             if (i < tempMenuItemIds.size() && data.get(i) != null) {
                 int menuItemId = tempMenuItemIds.get(i);
-                MenuItem realMenuItem = menuItemRepo.findById(menuItemId);
-                data.get(i).setMenuItem(realMenuItem);
+                MenuItem realMenuItem = menuItemRepo.findById(Integer.valueOf(menuItemId));
+                if (realMenuItem != null) {
+                    data.get(i).setMenuItem(realMenuItem);
+                }
             }
         }
         tempMenuItemIds.clear();
@@ -80,18 +85,22 @@ public class InventoryRepository extends BaseRepository<InventoryItem, Integer> 
     //───Parse and ToLine────────────────────────────────────────────────────────
     @Override
     protected InventoryItem parseLine(String line) {
+        // [FIX] Lazy init: khởi tạo list ngay tại đây nếu chưa có.
+        if (tempMenuItemIds == null) {
+            tempMenuItemIds = new ArrayList<Integer>();
+        }
+
         String[] parts = line.split("\\|");
         if (parts.length < 5) return null;
 
-        int id = Integer.parseInt(parts[0].trim());
-        int menuItemId = Integer.parseInt(parts[1].trim());
-        int quantity = Integer.parseInt(parts[2].trim());
-        int minQuantity = Integer.parseInt(parts[3].trim());
-        String unit = parts[4].trim();
-        if (tempMenuItemIds == null) {
-            tempMenuItemIds = new ArrayList<>();
-        }
-        tempMenuItemIds.add(menuItemId); 
+        int    id          = Integer.parseInt(parts[0].trim());
+        int    menuItemId  = Integer.parseInt(parts[1].trim());
+        int    quantity    = Integer.parseInt(parts[2].trim());
+        int    minQuantity = Integer.parseInt(parts[3].trim());
+        String unit        = parts[4].trim();
+
+        tempMenuItemIds.add(menuItemId);
+
         return new InventoryItem(id, null, quantity, minQuantity, unit);
     }
 

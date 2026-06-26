@@ -11,3 +11,4 @@
 11|Ruou Vang Do Bordeaux|Vang do Chateau Margaux thuong hang phuc vu theo ly|680000.0|4|true
 12|Cocktail Signature Bingchiling|Cocktail dac che doc quyen cua nha hang voi gin, vai thieu va hoa hong|220000.0|4|true
 13|Tra Oolong Dai Loan Cao Cap|Tra oolong hao hang pha theo nghi thuc tra dao phuong Dong|150000.0|4|true
+14|Vit Quay Bac KInh|Vit Quay Bac Kinh Thom Ngon|250000.0|2|true

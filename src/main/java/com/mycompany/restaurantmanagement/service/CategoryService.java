@@ -15,7 +15,7 @@ public class CategoryService extends BaseService<Category, Integer> {
     // thêm danh mục mới
     public Category addCategory(String name, String description) {
         Category category = new Category(categoryRepository.nextId(), name, description);
-        add(category); // Gọi hàm add(T entity) từ BaseService để lưu và ghi file
+        add(category); 
         return category;
     }
 
@@ -27,7 +27,7 @@ public class CategoryService extends BaseService<Category, Integer> {
         }
         found.setName(newName);
         found.setDescription(newDescription);
-        update(found); // Gọi hàm update(T entity) từ BaseService để đồng bộ xuống file
+        update(found); 
         return true;
     }
 }

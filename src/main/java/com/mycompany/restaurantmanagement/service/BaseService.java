@@ -37,7 +37,7 @@ public abstract class BaseService<T, ID> implements IService<T, ID> {
 
     @Override
     public void update(T entity) {
-
+        
         repository.save(entity);
 
     }

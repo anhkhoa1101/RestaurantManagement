@@ -84,7 +84,8 @@ public class InventoryUI {
         return Double.parseDouble(scanner.nextLine().trim());
     }
 
-    // ─── Thêm mới món ăn ────────────────────────────────────────────────────────────
+    // ─── Thêm mới món ăn
+    // ────────────────────────────────────────────────────────────
 
     private void addMenuItem() {
         System.out.println("\n-- Add Menu Item --");
@@ -128,7 +129,8 @@ public class InventoryUI {
             return;
         }
 
-        // Sử dụng addMenuItem() từ MenuService để tạo món ăn mới và tự động lưu vào file
+        // Sử dụng addMenuItem() từ MenuService để tạo món ăn mới và tự động lưu vào
+        // file
         MenuItem item = menuService.addMenuItem(name, description, price, category);
 
         int quantity, minQuantity;
@@ -158,6 +160,10 @@ public class InventoryUI {
             System.out.println("Invalid ID.");
             return;
         }
+        if (menuService.getById(id) == null) {
+            System.out.println("Item not found.");
+            return;
+        }
 
         System.out.print("New name: ");
         String name = scanner.nextLine().trim();
@@ -169,6 +175,35 @@ public class InventoryUI {
             System.out.println("Invalid price.");
             return;
         }
+        System.out.println("\nSelect Category:");
+        System.out.println("1. Khai Vi");
+        System.out.println("2. Mon Chinh");
+        System.out.println("3. Trang Mieng");
+        System.out.println("4. Do Uong");
+
+        int categoryId;
+        try {
+            categoryId = readInt("Your choice (1-4): ");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid choice.");
+            return;
+        }
+
+        // Lấy object Category thật từ ID vừa nhập (1, 2, 3 hoặc 4)
+        Category category = categoryService.getById(categoryId);
+        if (category == null) {
+            System.out.println("Category not found. Update cancelled.");
+            return;
+        }
+        System.out.println("Confirm Available (True/False or T/F):");
+        String input = scanner.nextLine().trim().toLowerCase();
+
+        // Nếu người dùng nhập "true", "t", "yes", hoặc "y" thì sẽ là True.
+        // Còn lại tất cả sẽ là False.
+        boolean isAvailable = input.equals("true")
+                || input.equals("t")
+                || input.equals("y")
+                || input.equals("yes");
 
         System.out.print("Confirm update? (Y/N): ");
         if (!scanner.nextLine().trim().equalsIgnoreCase("Y")) {
@@ -176,10 +211,11 @@ public class InventoryUI {
             return;
         }
 
-        System.out.println(menuService.updateMenuItem(id, name, price)
+        System.out.println(menuService.updateMenuItem(id, name, price, category, isAvailable)
                 ? "Item updated successfully."
                 : "Item not found.");
     }
+
     // ─── Xóa món ăn ─────────────────────────────────────────────────────────────
     private void deleteMenuItem() {
         System.out.println("\n-- Delete Menu Item --");
@@ -203,6 +239,7 @@ public class InventoryUI {
                 ? "Item deleted successfully."
                 : "Item not found.");
     }
+
     // ─── Tìm kiếm món ăn ─────────────────────────────────────────────────────────
     private void searchMenuItem() {
         System.out.println("\n-- Search Menu Items --");
@@ -217,7 +254,9 @@ public class InventoryUI {
                 System.out.println(m);
         }
     }
-    // ─── Xem tất cả món ăn ─────────────────────────────────────────────────────────
+
+    // ─── Xem tất cả món ăn
+    // ─────────────────────────────────────────────────────────
     private void viewAllMenuItems() {
         System.out.println("\n-- All Menu Items --");
         // Thay thế getAllMenuItems() bằng hàm getAll() chuẩn của lớp dịch vụ cha
@@ -229,7 +268,9 @@ public class InventoryUI {
                 System.out.println(item);
         }
     }
-    // ─── Kiểm tra tồn kho ─────────────────────────────────────────────────────────
+
+    // ─── Kiểm tra tồn kho
+    // ─────────────────────────────────────────────────────────
     private void checkStock() {
         System.out.println("\n-- Inventory Stock --");
         // Sửa hàm gọi từ getAllInventoryItems() sang getAll() kế thừa trực tiếp
@@ -245,7 +286,9 @@ public class InventoryUI {
             System.out.printf("%-15s %s%n", status, i);
         }
     }
-    // ─── Nhập thêm hàng tồn kho ─────────────────────────────────────────────────────
+
+    // ─── Nhập thêm hàng tồn kho
+    // ─────────────────────────────────────────────────────
     private void restockItem() {
         System.out.println("\n-- Restock Item --");
         checkStock();

@@ -33,7 +33,9 @@ public abstract class BaseRepository<T, ID> implements IRepository<T, ID> {
     @Override
     public void save(T entity) {
 
-        data.add(entity);
+        if(!data.contains(entity)){
+            data.add(entity);
+        }
 
         saveToFile();
 

@@ -22,13 +22,15 @@ public class MenuService extends BaseService<MenuItem, Integer> {
     }
 
     // Cập nhật tên và giá món ăn
-    public boolean updateMenuItem(int id, String name, double price) {
+    public boolean updateMenuItem(int id, String name, double price, Category category,boolean isAvailable) {
         MenuItem found = getById(id); 
         if (found == null) {
             return false;
         }
         found.setName(name);
         found.setPrice(price);
+        found.setCategory(category);
+        found.setAvailable(isAvailable);
         update(found); 
         return true;
     }
