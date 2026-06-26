@@ -189,6 +189,15 @@ public class Order {
 
     }
 
+    public void loadDetail(OrderDetail detail) {
+
+        if (detail == null) {
+            return;
+        }
+
+        details.add(detail);
+
+    }
     @Override
     public boolean equals(Object obj) {
 

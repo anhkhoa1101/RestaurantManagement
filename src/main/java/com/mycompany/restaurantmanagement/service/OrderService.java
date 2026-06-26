@@ -3,24 +3,32 @@ package com.mycompany.restaurantmanagement.service;
 import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
 import com.mycompany.restaurantmanagement.model.Table;
+import com.mycompany.restaurantmanagement.model.Invoice;
 import com.mycompany.restaurantmanagement.repository.OrderRepository;
+import com.mycompany.restaurantmanagement.service.InvoiceService;
 
+import java.util.Random;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class OrderService extends BaseService<Order, String> {
+
+
+    private final InvoiceService invoiceService;
 
     private final TableService tableService;
 
     private final InventoryService inventoryService;
 
-    public OrderService(OrderRepository repository, TableService tableService, InventoryService inventoryService) {
+    public OrderService(OrderRepository repository, TableService tableService, InventoryService inventoryService, InvoiceService invoiceService) {
 
         super(repository);
 
         this.tableService = tableService;
 
         this.inventoryService = inventoryService;
+
+        this.invoiceService = invoiceService;
 
     }
 
@@ -36,10 +44,23 @@ public class OrderService extends BaseService<Order, String> {
 
         Table table = tableService.getById(tableId);
 
-        Order order = new Order(UUID.randomUUID().toString(), table);
+        Random random = new Random();
+
+        String orderId;
+
+        do {
+
+            int number = 100000 + random.nextInt(900000);
+
+            orderId = String.valueOf(number);
+
+        } while (getById(orderId) != null);
+
+        Order order = new Order(orderId, table);
 
         add(order);
 
+        invoiceService.createInvoiceFromOrder(order);
         return order;
 
     }
@@ -66,7 +87,18 @@ public class OrderService extends BaseService<Order, String> {
 
         order.calculateTotal();
 
+        // ⭐ THIẾU DÒNG NÀY
         update(order);
+
+        Invoice invoice = invoiceService.getByOrderId(orderId);
+
+        if (invoice != null) {
+
+            invoice.setTotalAmount(order.getTotalPrice());
+
+            invoiceService.update(invoice);
+
+        }
 
     }
 
@@ -92,6 +124,11 @@ public class OrderService extends BaseService<Order, String> {
 
         return ((OrderRepository) repository).findUnpaidOrders();
 
+    }
+
+    // Thêm vào OrderService, dùng lại getOpenOrders() đã có sẵn
+    public List<Order> getOpenOrdersByTable(int tableId) {
+        return getOpenOrders().stream().filter(o -> o.getTable().getTableId() == tableId).collect(Collectors.toList());
     }
 
     public Order checkoutOrder(String orderId) {

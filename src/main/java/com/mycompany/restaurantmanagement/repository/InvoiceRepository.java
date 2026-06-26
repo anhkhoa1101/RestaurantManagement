@@ -58,9 +58,7 @@ public class InvoiceRepository extends BaseRepository<Invoice, String> {
         // 3. issueDate (string → Date đơn giản hóa)
         // Nếu bạn không dùng timestamp thì nên parse kiểu này:
         try {
-            invoice.setIssueDate(
-                    new java.text.SimpleDateFormat("yyyy-MM-dd").parse(d[3])
-            );
+            invoice.setIssueDate(new java.text.SimpleDateFormat("yyyy-MM-dd").parse(d[3]));
         } catch (Exception e) {
             invoice.setIssueDate(new Date());
         }
@@ -74,30 +72,18 @@ public class InvoiceRepository extends BaseRepository<Invoice, String> {
     @Override
     protected String toLine(Invoice invoice) {
 
-        return invoice.getInvoiceId()
-                + "|" + (invoice.getOrder() != null ? invoice.getOrder().getOrderId() : "null")
-                + "|" + invoice.getTotalAmount()
-                + "|" + new java.text.SimpleDateFormat("yyyy-MM-dd").format(invoice.getIssueDate())
-                + "|" + invoice.getStatus();
+        return invoice.getInvoiceId() + "|" + (invoice.getOrder() != null ? invoice.getOrder().getOrderId() : "null") + "|" + invoice.getTotalAmount() + "|" + new java.text.SimpleDateFormat("yyyy-MM-dd").format(invoice.getIssueDate()) + "|" + invoice.getStatus();
     }
 
     public Invoice findByOrderId(String orderId) {
+
         for (Invoice invoice : data) {
-            if (
-                    invoice.getOrder() != null
-                            &&
-                            invoice.getOrder().getOrderId().equals(orderId)
 
-            ) {
-
+            if (invoice.getOrder() != null && invoice.getOrder().getOrderId().equals(orderId)) {
                 return invoice;
-
             }
-
         }
-
         return null;
-
     }
 
     public List<Invoice> findByDateRange(Date from, Date to) {
@@ -131,5 +117,6 @@ public class InvoiceRepository extends BaseRepository<Invoice, String> {
         return result;
 
     }
+
 
 }

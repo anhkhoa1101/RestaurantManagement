@@ -14,15 +14,15 @@ public class InvoiceService extends BaseService<Invoice, String> {
 
     private InvoiceRepository invoiceRepository;
 
-    private OrderService orderService;
 
-    public InvoiceService(InvoiceRepository invoiceRepository, OrderService orderService) {
+    public InvoiceService(
+            InvoiceRepository invoiceRepository
+    ){
 
         super(invoiceRepository);
 
-        this.invoiceRepository = invoiceRepository;
-
-        this.orderService = orderService;
+        this.invoiceRepository =
+                invoiceRepository;
 
     }
 
@@ -123,4 +123,8 @@ public class InvoiceService extends BaseService<Invoice, String> {
 
     }
 
+    public Invoice getByOrderId(String orderId){
+        return invoiceRepository
+                .findByOrderId(orderId);
+    }
 }

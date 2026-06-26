@@ -29,7 +29,7 @@ public Invoice(String invoiceId, Order order, Payment payment, Double totalAmoun
     this.payment = payment;
     this.totalAmount = totalAmount;
     this.issueDate = issueDate;
-    this.status = InvoiceStatus.UNPAID; // Mặc định trạng thái là "UNPAID"
+    this.status = status; // Mặc định trạng thái là "UNPAID"
 }
 
 //hàm getter có nhiệm vụ lấy dữ liệu, setter gán dữ liệu

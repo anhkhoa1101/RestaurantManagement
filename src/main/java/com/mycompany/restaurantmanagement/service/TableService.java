@@ -67,6 +67,15 @@ public class TableService extends BaseService<Table, Integer> {
 
     }
 
+    @Override
+    public Table getById(Integer tableId) {
+
+        return super.getById(
+                tableId
+        );
+
+    }
+
     public Table addTable(String name, int capacity) {
 
         validate(name, capacity);

@@ -3,6 +3,7 @@ package com.mycompany.restaurantmanagement.repository;
 import com.mycompany.restaurantmanagement.config.AppConfig;
 import com.mycompany.restaurantmanagement.model.Table;
 
+import java.lang.String;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,29 +71,11 @@ public class TableRepository extends BaseRepository<Table, Integer> {
     protected Table parseLine(String line) {
 
         String[] d = line.split("\\|");
-
-        // FORMAT CŨ:
-        // id|name|occupied
-        if (d.length == 3) {
-
-            return new Table(
-
-                    Integer.parseInt(d[0].trim()),
-
-                    d[1].trim(),
-
-                    4, // capacity mặc định
-
-                    Boolean.parseBoolean(d[2].trim()));
-
-        }
-
         // FORMAT MỚI:
         // id|name|capacity|occupied
         if (d.length == 4) {
 
             return new Table(
-
                     Integer.parseInt(d[0].trim()),
 
                     d[1].trim(),

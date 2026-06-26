@@ -3,13 +3,18 @@ package com.mycompany.restaurantmanagement.repository;
 import com.mycompany.restaurantmanagement.config.AppConfig;
 import com.mycompany.restaurantmanagement.model.MenuItem;
 import com.mycompany.restaurantmanagement.model.Order;
+import com.mycompany.restaurantmanagement.model.Table;
 import com.mycompany.restaurantmanagement.model.OrderDetail;
+import com.mycompany.restaurantmanagement.repository.TableRepository;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.String;
 
 public class OrderRepository extends BaseRepository<Order, String> {
 
@@ -36,50 +41,47 @@ public class OrderRepository extends BaseRepository<Order, String> {
 
     }
 
-//    @Override
-//    public void save(Order entity) {
-//
-//        Order old = findById(entity.getOrderId());
-//
-//        if (old != null) {
-//
-//            data.remove(old);
-//
-//        }
-//
-//        data.add(entity);
-//
-//        saveToFile();
-//
-//    }
+    @Override
+    public void save(Order entity) {
+
+        Order old = findById(entity.getOrderId());
+
+        if (old != null) {
+
+            data.remove(old);
+
+        }
+
+        data.add(entity);
+
+        saveToFile();
+
+        saveOrderDetails();
+
+    }
 
     @Override
     protected Order parseLine(String line) {
-
         String[] d = line.split("\\|");
-
         String orderId = d[0];
+        int tableId = Integer.parseInt(d[1]);
+        boolean paid = Boolean.parseBoolean(d[2]);
+        TableRepository tableRepository = new TableRepository();
+        Table table = tableRepository.findById(tableId); // ✅ map lại đúng Table object
 
-        boolean paid = Boolean.parseBoolean(d[1]);
-
-        Order order = new Order(orderId, null);
-
+        Order order = new Order(orderId, table);
         order.setPaid(paid);
-
         loadOrderDetails(order);
-
         order.calculateTotal();
-
         return order;
-
     }
 
     @Override
     protected String toLine(Order order) {
 
-        return order.getOrderId() + "|" + order.isPaid();
-
+        return order.getOrderId() + "|" + order.getTable().getTableId() + "|" + order.isPaid();
     }
+
 
     public List<Order> findByTable(int tableId) {
 
@@ -119,9 +121,7 @@ public class OrderRepository extends BaseRepository<Order, String> {
 
     private void loadOrderDetails(Order order) {
 
-        try (
-                BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDER_DETAILS_FILE_PATH))
-        ) {
+        try (BufferedReader br = new BufferedReader(new FileReader(AppConfig.ORDER_DETAILS_FILE_PATH))) {
 
             String line;
 
@@ -130,14 +130,14 @@ public class OrderRepository extends BaseRepository<Order, String> {
                 String[] d = line.split("\\|");
 
                 if (!d[0].equals(order.getOrderId())) {
-
                     continue;
-
                 }
 
                 MenuItem item = new MenuItem(Integer.parseInt(d[1]), d[2], "", Double.parseDouble(d[3]), null);
 
-                order.addDetail(item, Integer.parseInt(d[4]));
+                OrderDetail detail = new OrderDetail(item, Integer.parseInt(d[4]));
+
+                order.loadDetail(detail);
 
             }
 
@@ -149,4 +149,24 @@ public class OrderRepository extends BaseRepository<Order, String> {
 
     }
 
+    private void saveOrderDetails() {
+
+        try (
+
+                BufferedWriter bw = new BufferedWriter(new FileWriter(AppConfig.ORDER_DETAILS_FILE_PATH))) {
+
+            for (Order order : data) {
+                for (OrderDetail detail : order.getDetails()) {
+                    bw.write(order.getOrderId() + "|" + detail.getMenuItem().getItemId() + "|" + detail.getMenuItem().getName() + "|" + detail.getOrderPrice() + "|" + detail.getQuantity());
+                    bw.newLine();
+                }
+
+            }
+
+        } catch (IOException e) {
+            System.out.println("Save order detail failed: " + e.getMessage());
+
+        }
+
+    }
 }

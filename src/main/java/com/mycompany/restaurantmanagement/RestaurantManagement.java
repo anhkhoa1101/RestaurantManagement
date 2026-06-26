@@ -1,6 +1,6 @@
-
 package com.mycompany.restaurantmanagement;
 //Repository
+
 import com.mycompany.restaurantmanagement.repository.UserRepository;
 import com.mycompany.restaurantmanagement.repository.UserRepository_File;
 
@@ -22,6 +22,7 @@ import com.mycompany.restaurantmanagement.ui.Router;
 
 
 import java.util.Scanner;
+
 public class RestaurantManagement {
 
     public static void main(String[] args) {
@@ -62,14 +63,13 @@ public class RestaurantManagement {
 
         TableService tableService = new TableService(tableRepository);
 
-        OrderService orderService = new OrderService(orderRepository ,tableService, inventoryService);
+        InvoiceService invoiceService = new InvoiceService(invoiceRepository);
 
-        OrderDetailService orderDetailService = new OrderDetailService( inventoryService, orderService );
+        OrderService orderService = new OrderService(orderRepository, tableService, inventoryService, invoiceService);
 
-        InvoiceService invoiceService = new InvoiceService(invoiceRepository, orderService);
+        OrderDetailService orderDetailService = new OrderDetailService(inventoryService, orderService);
 
         PaymentService paymentService = new PaymentService(paymentRepository, invoiceService);
-                
         // ==========================
         // UI Layer
         // ==========================
