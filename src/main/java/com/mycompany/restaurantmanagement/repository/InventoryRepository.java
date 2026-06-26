@@ -3,17 +3,20 @@ package com.mycompany.restaurantmanagement.repository;
 import com.mycompany.restaurantmanagement.config.AppConfig;
 import com.mycompany.restaurantmanagement.model.InventoryItem;
 import com.mycompany.restaurantmanagement.model.MenuItem;
+import java.util.ArrayList;
+import java.util.List;
 
 public class InventoryRepository extends BaseRepository<InventoryItem, Integer> {
 
     private final MenuItemRepository menuItemRepo;
     private int nextId = 1;
 
-    // ─── Constructor ──────────────────────────────────────────────────────────
-    public InventoryRepository(MenuItemRepository menuItemRepo) {
+    private List<Integer> tempMenuItemIds = null;
 
-        super(AppConfig.INVENTORY_FILE_PATH);       
-        this.menuItemRepo = menuItemRepo;
+    //───Constructor──────────────────────────────────────────────────────────────
+    public InventoryRepository(MenuItemRepository menuItemRepo) {
+        super(AppConfig.INVENTORY_FILE_PATH);
+        this.menuItemRepo = menuItemRepo;  
         bindMenuItems();
         calculateNextId();
     }
@@ -22,26 +25,19 @@ public class InventoryRepository extends BaseRepository<InventoryItem, Integer> 
         return nextId++;
     }
 
-    // ─── Find by ID ──────────────────────────────────────────────────────────
-@Override
-public InventoryItem findById(Integer id) {
-    if (id == null) {
+    //───Find by ID──────────────────────────────────────────────────────────────
+    @Override
+    public InventoryItem findById(Integer id) {
+        if (id == null) return null;
+        for (InventoryItem item : data) {
+            if (item != null && item.getInventoryId() == id.intValue()) {
+                return item;
+            }
+        }
         return null;
     }
-    
-    for (InventoryItem item : data) {
-        if (item == null) {
-            continue;
-        }
-        
-        if (item.getInventoryId() == id.intValue()) {
-            return item;
-        }
-    }
-    return null;
-}
 
-    // ─── Find by MenuItem ID ──────────────────────────────────────────────────
+    //───Find by MenuItem ID──────────────────────────────────────────────────────
     public InventoryItem findByMenuItemId(int menuItemId) {
         for (InventoryItem item : data) {
             if (item.getMenuItem() != null && item.getMenuItem().getItemId() == menuItemId) {
@@ -51,41 +47,37 @@ public InventoryItem findById(Integer id) {
         return null;
     }
 
-    // ─── Update ──────────────────────────────────────────────────────────────
+    //───Update────────────────────────────────────────────────────────────────
     public void update() {
         saveToFile();
     }
 
-    // ─── Calculate Next ID ────────────────────────────────────────────────────
+    //───Calculate Next ID──────────────────────────────────────────────────────
     private void calculateNextId() {
         int maxId = 0;
         for (InventoryItem item : data) {
-            if (item.getInventoryId() > maxId) {
+            if (item != null && item.getInventoryId() > maxId) {
                 maxId = item.getInventoryId();
             }
         }
         this.nextId = maxId + 1;
     }
 
-    // ─── Bind Menu Items (Đã sửa để hết lỗi Null) ─────────────────────────────
+    //───Bind Menu Items ────────────────────────────────────────────────────────
     private void bindMenuItems() {
-        if (menuItemRepo == null) return;
+        if (menuItemRepo == null || tempMenuItemIds == null) return;
 
-        for (InventoryItem item : data) {
-            if (item.getMenuItem() != null) {
-                int savedId = item.getMenuItem().getItemId();
-                
-                MenuItem realMenuItem = menuItemRepo.findById(savedId);
-                
-                item.setMenuItem(realMenuItem);
+        for (int i = 0; i < data.size(); i++) {
+            if (i < tempMenuItemIds.size() && data.get(i) != null) {
+                int menuItemId = tempMenuItemIds.get(i);
+                MenuItem realMenuItem = menuItemRepo.findById(menuItemId);
+                data.get(i).setMenuItem(realMenuItem);
             }
         }
+        tempMenuItemIds.clear();
     }
 
-    // ─── Parse and ToLine ────────────────────────────────────────────────────
-    // liên kết với BaseRepository để parse dữ liệu từ file và lưu dữ liệu vào file
-    // parseLine: Chuyển đổi một dòng dữ liệu từ file thành đối tượng InventoryItem
-    // toLine: Chuyển đổi một đối tượng InventoryItem thành một dòng dữ liệu để lưu vào file
+    //───Parse and ToLine────────────────────────────────────────────────────────
     @Override
     protected InventoryItem parseLine(String line) {
         String[] parts = line.split("\\|");
@@ -96,10 +88,11 @@ public InventoryItem findById(Integer id) {
         int quantity = Integer.parseInt(parts[2].trim());
         int minQuantity = Integer.parseInt(parts[3].trim());
         String unit = parts[4].trim();
-
-        MenuItem tempFakeMenu = new MenuItem(menuItemId, "", "", 0.0, null);
-
-        return new InventoryItem(id, tempFakeMenu, quantity, minQuantity, unit);
+        if (tempMenuItemIds == null) {
+            tempMenuItemIds = new ArrayList<>();
+        }
+        tempMenuItemIds.add(menuItemId); 
+        return new InventoryItem(id, null, quantity, minQuantity, unit);
     }
 
     @Override

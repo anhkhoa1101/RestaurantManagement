@@ -10,13 +10,12 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Integer> {
     private final CategoryRepository categoryRepo;
     private int nextId = 1;
     
+    private List<Integer> tempCategoryIds = null;
+
     //───Constructor──────────────────────────────────────────────────────────────
     public MenuItemRepository(CategoryRepository categoryRepo) {
-
         super(AppConfig.MENU_FILE_PATH);
-        
         this.categoryRepo = categoryRepo;
-        
         bindCategories();
         calculateNextId();
     }
@@ -26,7 +25,6 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Integer> {
     }
     
     //───Find by ID──────────────────────────────────────────────────────────────
-    // tim kiếm theo id của MenuItem
     @Override
     public MenuItem findById(Integer id) {
         if (id == null) return null;
@@ -48,10 +46,12 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Integer> {
         }
         return result;
     }
+    
     //───Update────────────────────────────────────────────────────────────────
     public void update() {
         saveToFile();
     }
+    
     //───Calculate Next ID──────────────────────────────────────────────────────
     private void calculateNextId() {
         int maxId = 0;
@@ -63,27 +63,21 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Integer> {
         this.nextId = maxId + 1;
     }
     
-    //───Bind Categories ────────────────────────────────────────────────────────
+    //───Bind Categories──────────────────────────────────────────────────────────
     private void bindCategories() {
-        if (categoryRepo == null) return;
+        if (categoryRepo == null || tempCategoryIds == null) return;
 
-        for (MenuItem item : data) {
-            if (item != null && item.getCategory() != null) {
-                // Lấy cái ID tạm đang lưu trong Object Category giả lập ra
-                int savedCategoryId = item.getCategory().getId();
-                
-                // Tra cứu thực thể Category thực sự từ danh mục dữ liệu
-                Category realCategory = categoryRepo.findById(savedCategoryId);
-                
-                // Gán đè thực thể chuẩn OOP hoàn chỉnh vào món ăn
-                item.setCategory(realCategory);
+        for (int i = 0; i < data.size(); i++) {
+            if (i < tempCategoryIds.size() && data.get(i) != null) {
+                int categoryId = tempCategoryIds.get(i);
+                Category realCategory = categoryRepo.findById(categoryId);
+                data.get(i).setCategory(realCategory);
             }
         }
+        tempCategoryIds.clear();
     }
     
     //───Parse and ToLine────────────────────────────────────────────────────────
-    // liên kết với BaseRepository để parse dữ liệu từ file và lưu dữ liệu vào file 
-    // parseLine: Chuyển đổi một dòng dữ liệu từ file thành đối tượng MenuItem
     @Override
     protected MenuItem parseLine(String line) {
         String[] parts = line.split("\\|");
@@ -96,9 +90,12 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Integer> {
         int categoryId = Integer.parseInt(parts[4].trim());
         boolean isAvailable = Boolean.parseBoolean(parts[5].trim());
 
-        Category tempFakeCategory = new Category(categoryId, "", "");
-        
-        MenuItem item = new MenuItem(id, name, description, price, tempFakeCategory);
+        if (tempCategoryIds == null) {
+            tempCategoryIds = new ArrayList<>();
+        }
+        tempCategoryIds.add(categoryId);
+
+        MenuItem item = new MenuItem(id, name, description, price, null);
         item.setAvailable(isAvailable);
         return item;
     }
