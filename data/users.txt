@@ -2,3 +2,4 @@
 2|hr01|123456|Nguyen Hoang Anh Khoa|hr01@gmail.com|EMPLOYEE
 3|cashier01|123456|Tran Duc Anh|cashier01@gmail.com|CASHIER
 4|warehouse|123456|Dang Khoa|@gmail.com|WAREHOUSE
+5|adminbackup|123456|Khoa|ktg@chatgpt|EMPLOYEE

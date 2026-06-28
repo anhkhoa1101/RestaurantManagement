@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class OrderService extends BaseService<Order, String> {
 
-
     private final InvoiceService invoiceService;
 
     private final TableService tableService;

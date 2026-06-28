@@ -3,18 +3,13 @@ package com.mycompany.restaurantmanagement.ui;
 import com.mycompany.restaurantmanagement.model.Manager;
 import com.mycompany.restaurantmanagement.model.User;
 
-import com.mycompany.restaurantmanagement.service.InvoiceService;
-import com.mycompany.restaurantmanagement.service.MenuService;
-import com.mycompany.restaurantmanagement.service.OrderDetailService;
-import com.mycompany.restaurantmanagement.service.OrderService;
-import com.mycompany.restaurantmanagement.service.PaymentService;
-import com.mycompany.restaurantmanagement.service.TableService;
-import com.mycompany.restaurantmanagement.service.InventoryService;
-import com.mycompany.restaurantmanagement.service.CategoryService;
+import com.mycompany.restaurantmanagement.service.*;
 
 import java.util.Scanner;
 
 public class Router {
+
+    private UserService userService;
 
     private MenuService menuService;
 
@@ -34,9 +29,13 @@ public class Router {
 
     private Scanner scanner;
 
+
+
     public Router(
 
             Scanner scanner,
+
+            UserService userService,
 
             MenuService menuService,
 
@@ -57,6 +56,8 @@ public class Router {
     ) {
 
         this.scanner = scanner;
+
+        this.userService = userService;
 
         this.menuService = menuService;
 
@@ -92,7 +93,7 @@ public class Router {
 
             case MANAGER:
 
-                UIManager managerUI = new UIManager((Manager) user);
+                UIManager managerUI = new UIManager(userService);
 
                 managerUI.show();
 

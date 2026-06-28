@@ -49,10 +49,22 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    private User findById(int userId) {
+    public User findById(int userId) {
         for (User u : userRepository.findAll()) {
             if (u.getUserId() == userId) return u;
         }
         return null;
+    }
+
+    public boolean existsByUsername(String username) {
+
+        for (User user : userRepository.findAll()) {
+
+            if (user.getUsername().equalsIgnoreCase(username)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

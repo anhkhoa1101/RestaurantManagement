@@ -1,8 +1,8 @@
 package com.mycompany.restaurantmanagement;
 //Repository
+import  com.mycompany.restaurantmanagement.model.Manager;
 
 import com.mycompany.restaurantmanagement.repository.UserRepository;
-import com.mycompany.restaurantmanagement.repository.UserRepository_File;
 
 import com.mycompany.restaurantmanagement.repository.CategoryRepository;
 import com.mycompany.restaurantmanagement.repository.InventoryRepository;
@@ -30,21 +30,24 @@ public class RestaurantManagement {
         // ==========================
         // Repository Layer
         // ==========================
+//      Member 1
+        UserRepository userRepository = new UserRepository();
 
-        UserRepository userRepository = new UserRepository_File();
+        UserService userService = new UserService(userRepository);
 
         AuthService authService = new AuthService(userRepository);
 
+//        Member 2
         CategoryRepository categoryRepository = new CategoryRepository();
 
         MenuItemRepository menuRepository = new MenuItemRepository(categoryRepository);
 
         InventoryRepository inventoryRepository = new InventoryRepository(menuRepository);
-
+//      Member 3
         TableRepository tableRepository = new TableRepository();
 
         OrderRepository orderRepository = new OrderRepository();
-
+//      Member 4
         InvoiceRepository invoiceRepository = new InvoiceRepository();
 
         PaymentRepository paymentRepository = new PaymentRepository();
@@ -74,7 +77,7 @@ public class RestaurantManagement {
         // UI Layer
         // ==========================
 
-        Router router = new Router(scanner, menuService, inventoryService, categoryService, tableService, orderService, orderDetailService, invoiceService, paymentService);
+        Router router = new Router(scanner, userService, menuService, inventoryService, categoryService, tableService, orderService, orderDetailService, invoiceService, paymentService);
 
         LoginUI loginUI = new LoginUI(authService, router);
 
