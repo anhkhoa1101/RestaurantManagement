@@ -257,35 +257,74 @@ public class InventoryUI {
 
     // ─── Xem tất cả món ăn
     // ─────────────────────────────────────────────────────────
-    private void viewAllMenuItems() {
-        System.out.println("\n-- All Menu Items --");
-        // Thay thế getAllMenuItems() bằng hàm getAll() chuẩn của lớp dịch vụ cha
-        List<MenuItem> items = menuService.getAll();
-        if (items.isEmpty()) {
-            System.out.println("No menu items available.");
-        } else {
-            for (MenuItem item : items)
-                System.out.println(item);
+private void viewAllMenuItems() {
+    System.out.println();
+    printLine();
+    System.out.printf("| %-3s | %-30s | %-12s | %-9s| %-12s |%n",
+            "ID", "Tên món", "Giá (VND)", "Trạng thái", "Danh mục");
+    printLine();
+
+    List<MenuItem> items = menuService.getAll();
+    if (items.isEmpty()) {
+        System.out.println("|" + center("Không có món ăn nào.", 75) + "|");
+    } else {
+        for (MenuItem item : items) {
+            System.out.printf("| %-3d | %-30s | %,12.0f | %-9s| %-12s|%n",
+                    item.getItemId(),
+                    truncate(item.getName(), 30),
+                    item.getPrice(),
+                    item.isAvailable() ? "Còn bán" : "Hết món",
+                    item.getCategory().getName());
         }
     }
+    printLine();
+}
+
+private void printLine() {
+    System.out.println("+-----+--------------------------------+--------------+-----------+--------------+");
+}
+
+private String truncate(String s, int maxLen) {
+    return s.length() > maxLen ? s.substring(0, maxLen - 3) + "..." : s;
+}
+
+private String center(String text, int width) {
+    int pad = (width - text.length()) / 2;
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < pad; i++) sb.append(" ");
+    sb.append(text);
+    while (sb.length() < width) sb.append(" ");
+    return sb.toString();
+}
 
     // ─── Kiểm tra tồn kho
     // ─────────────────────────────────────────────────────────
-    private void checkStock() {
-        System.out.println("\n-- Inventory Stock --");
-        // Sửa hàm gọi từ getAllInventoryItems() sang getAll() kế thừa trực tiếp
-        List<InventoryItem> inventory = inventoryService.getAll();
-        if (inventory.isEmpty()) {
-            System.out.println("No inventory records found.");
-            return;
-        }
-        for (InventoryItem i : inventory) {
-            String status = i.isOutOfStock() ? "[OUT OF STOCK]"
-                    : i.isLowStock() ? "[LOW STOCK]  "
-                            : "[OK]         ";
-            System.out.printf("%-15s %s%n", status, i);
-        }
+private void checkStock() {
+    System.out.println();
+    System.out.println("+-----+--------------------------------+----------+----------+--------+----------------+");
+    System.out.printf("| %-3s | %-30s | %-8s | %-8s| %-6s | %-14s |%n",
+            "ID", "Tên món", "Số lượng", "Tối thiểu", "Đ.vị", "Trạng thái");
+    System.out.println("+-----+--------------------------------+----------+----------+--------+----------------+");
+
+    List<InventoryItem> inventory = inventoryService.getAll();
+    if (inventory.isEmpty()) {
+        System.out.println("Không có dữ liệu tồn kho.");
+        return;
     }
+    for (InventoryItem i : inventory) {
+        String status = i.isOutOfStock() ? "HẾT HÀNG"
+                : i.isLowStock() ? "SẮP HẾT"
+                : "Bình thường";
+        System.out.printf("| %-3d | %-30s | %-8d | %-8d | %-6s | %-14s |%n",
+                i.getInventoryId(),
+                truncate(i.getMenuItem().getName(), 30),
+                i.getQuantity(),
+                i.getMinQuantity(),
+                i.getUnit(),
+                status);
+    }
+    System.out.println("+-----+--------------------------------+----------+----------+--------+----------------+");
+}
 
     // ─── Nhập thêm hàng tồn kho
     // ─────────────────────────────────────────────────────
